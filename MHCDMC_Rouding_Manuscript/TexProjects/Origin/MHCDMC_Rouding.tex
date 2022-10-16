@@ -1,0 +1,491 @@
+% weidong81, manuscript 1, 2014
+
+% IEEE/ACM CCGrid 2015
+% The Due Date is Jan 30, 2015
+\documentclass[11pt,a4paper]{article}
+
+%Package used in the paper
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{graphics, color}
+\usepackage{multirow}
+\def\q{\hfill\rule{0.5ex}{1.3ex}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{operation}{Operation}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[section]{Conjecture}
+\newtheorem{observation}[theorem]{Observation}
+
+
+\textwidth 16cm \textheight 22.1cm \hoffset=-1.4cm \voffset=-1.6cm
+%\textwidth 16cm \textheight 22.7cm \hoffset=-1.6cm \voffset=-2.5cm
+%\renewcommand\baselinestretch{1.5} %This sentence is for "double-spaced".
+
+\linespread{1.5}% The \linespread{spacing} command allows you to set any line spacing you like.
+
+
+
+\baselineskip=7mm
+\title{MHCDMC Rouding}
+
+\author{Qinghui Zhang$^1$, Weidong Li$^2$, Qian Su$^1$ Xuejie Zhang$^{1,}$ \thanks{Correspondence: xjzhang@ynu.edu.cn (X. Zhang)}\\
+{\small 1. School of Information Science and Engineering, Yunnan University, Kunming 650504,  China}\\
+{\small 2. School of Mathematics and Statistics,  Yunnan University, Kunming 650504, China}}
+% \date{}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+abstract
+
+{\bf keywords}: high performance computing; resource allocation;
+scheduling; approximation algorithm; bag-of-tasks
+\end{abstract}
+\newpage
+\section{Introduction}
+introduction
+
+ \section{Related work}
+ related work
+ \section{Online scheduling model}
+Assume that a heterogeneous  computing system consists of $m$
+heterogeneous machines and $n$ users.  Each user $i$ submit  a set
+of $a_i$ independent tasks known as a bag-of-tasks \cite{Braun01}
+and its profit $p_i$.  As frequently used in scheduling problems for
+heterogeneous computing systems \cite{Tarplee151}, let
+$\textbf{ETC}=(ETC_{ij})$ be a $n\times m$ matrix where $ETC_{ij}$
+is the {\it estimated time to compute} for a task of user $i$ on
+machine $j$. Similarly, let $\textbf{APC}=(APC_{ij})$ be a $n\times
+m$ matrix where $APC_{ij}$ is the {\it average power consumption}
+for a task of user $i$ on machine $j$. Let $x_{ij}$ be the number of
+tasks of user $i$ assigned to machine $j$, where $x_{ij}$ is the
+primary decision variable in the optimization problem. For a
+feasible solution  ${\mathbf x }=(x_{ij})$, the load ( or finishing
+time ) of machine $j$ is defined as
+ \begin{eqnarray}
+L_{j}=\sum_{i=1}^{n}ETC_{ij}x_{ij}.
+\end{eqnarray}
+It implies that the maximum finishing time of all machines (i.e.,
+\emph{makespan}), denoted by $MS({\mathbf x })$, is
+ \begin{eqnarray}
+MS({\mathbf x })=\max_j L_{j}.
+\end{eqnarray}
+Correspondingly, the energy consumed by $n$ users is given by:
+
+
+Let $c$ be the cost per unit of energy. Motivated by the offline
+model in \cite{Tarplee14}, we consider the {\it Energy-Aware Profit
+Maximizing} (EAPM, for short) problem with bag-of-tasks, which can
+be formulated as the following nonlinear integer program (NLIP, for
+short).
+ \begin{eqnarray}
+ Maximize_{\mathbf{x}}   &&  \frac{\sum_{i=1}^np_i-cE({\mathbf x })}{MS(\mathbf{x})}\\
+\text{subject to:}&&    \sum_{j=1}^{m}x_{ij}=a_i, \forall i=1,2,\ldots,n \\
+ &&   \sum_{i=1}^{n}x_{ij}ETC_{ij}\leq MS(\mathbf{x}),  \forall j=1,2,\ldots,m \\
+ &    & x_{ij}\in  \mathbb{Z}_{\geq 0},  \forall i, j.
+\end{eqnarray}
+The objective of (4) is to maximize the profit per unit time, where
+$\mathbf{x}$ is the primary decision variable. The first constraint
+ensures that each task in the bag is assigned to some machine.
+Because the objective is to maximize the profit per unit time, which
+is equivalent to minimize makespan, the second constrain ensures
+that $MS(\mathbf{x})$ is equal to the maximum finishing time of all
+machines.
+
+
+However, in practice, when a user arrives, we have to assign all the
+ tasks to machines as we do not know the information of the uncoming users.
+ Thus, it is necessary to study  the online EAPM problem with bag-of-tasks,
+  where the tasks of user $i$ have to assigned
+before the  user $i+1$ arrives, for $i=1,2,\ldots,n-1$. Without loss
+of generality, assume each task of user $i$ must be assigned to some
+machine before the tasks of user $i+1$ arrive, for $i=1$,
+$\ldots,n-1$.  Most importantly,  the number of tasks of user $i$ is
+very large, we can not assign the $a_i$ tasks one by one. It
+motivates us to design an efficient algorithm for the online EAPM
+problem with bag-of-tasks.
+
+
+
+ \section{An online algorithm}
+In this section, we present an efficient algorithm for the online
+EAPM problem with bag-of-tasks. For each $i$,  let $L^i_{j}$ and
+$E^{i}$ be the {\it  load} of machine  $j$ and the total energy
+consumed  after assigning the tasks of the first $i$ users.
+Initially, let $L^0_j=0$ for $j=1,\ldots,M$ and $E^{0}=0$. By
+definitions, for $i=1,2,\ldots,n$,  we have
+\begin{eqnarray}
+ L^i_{j}=\sum_{k=1}^{i}x_{kj}ETC_{kj}, \text{ and } E^i=\sum_{k=1}^{i}\sum_{j=1}^{m}x_{kj} APC_{kj}ETC_{kj}.
+\end{eqnarray}
+For $i=1,2,\ldots,n$, when user $i$ arrives,  we shall decide
+$x_{ij}$ such that $\sum_{j=1}^{m}x_{ij}=a_i$ and the objective
+value
+\begin{eqnarray}
+ \frac{\sum_{k=1}^{i}p_k-cE^{i-1}-c\sum_{j=1}^{m}x_{ij} APC_{ij}ETC_{ij}}{MS^i}
+\end{eqnarray}
+is maximized, where \begin{eqnarray}  MS^i=\max_j  L^i_{j}, \hspace
+{1mm} \text{and} \hspace {1mm}  L^i_{j}= L^{i-1}_{j}+x_{ij}ETC_{ij},
+\forall i,j.
+\end{eqnarray}
+
+Formally, this problem can be formulated as the following integer
+program (IP):
+
+ \begin{eqnarray}
+\left\{ \begin{split} &  \text {Maximize}   \hspace{2mm}
+\frac{\sum_{k=1}^{i}p_k-cE^{i-1}-c\sum_{j=1}^{m}x_{ij} APC_{ij}ETC_{ij}}{MS^i}\\
+   & \sum_{j=1}^{m}x_{ij}=a_i \\
+  & L^{i-1}_{j}+x_{ij}ETC_{ij}\leq MS^i \\
+     &x_{ij}\in Z^{+}\cup \{ 0\}, j=1,\ldots,m.
+\end{split}\right.\end{eqnarray}
+Note that inequality in IP(11) is equivalent to
+\begin{eqnarray}
+x_{ij}\leq \lfloor\frac{MS^i-L^{i-1}_{j}}{ETC_{ij}}\rfloor.
+\end{eqnarray}
+
+
+For convenience, sort the tasks of user $i$ in descending order by
+$APC_{ij}ETC_{ij}$. Without loss of generality, assume that
+\begin{eqnarray}
+APC_{i1}ETC_{i1}\geq APC_{i2}ETC_{i2}\geq \cdots \geq
+APC_{im}ETC_{im}.
+\end{eqnarray}
+Our algorithm is based on the following lemma.
+
+ \vspace{1mm}\noindent {\bf Lemma~1.}  {\em There exists an optimal
+solution such that
+\begin{eqnarray*}
+x_{i1}=\cdots=x_{i(\tau-1)}=0,
+ \text{and} \hspace{1mm} x_{ij}=\lfloor\frac{MS^i-L^{i-1}_{j}}{ETC_{ij}}\rfloor,
+ j=\tau,\ldots,m,
+\end{eqnarray*} for some $\tau\in \{1,\ldots,M\}$. }\\
+{\bf Proof}. Assume that we know the value of $MS^i$ in the optimal
+solution for IP(11). Thus, the objective function of IP(11) is
+equivalent to minimize $\sum_{j=1}^{m}x_{ij} APC_{ij}ETC_{ij}$, as
+$L^{i-1}_{j}$ and $ETC_{ij}$ are constants. Obviously, to minimize
+$\sum_{j=1}^{m}x_{ij} APC_{ij}ETC_{ij}$, $x_{ij}$ with small value
+$APC_{ij}ETC_{ij}$ should be maximized and $x_{ij}$ with large value
+$APC_{ij}ETC_{ij}$ should be minimized, subject to the constraints
+of IP(11).
+
+
+ In the optimal solution $(x_{i1}, x_{i2}, \ldots, x_{im})$ for IP(11), consider the machine
+with minimum index $\tau_1$ such that $x_{i\tau_1}>0$. If there
+exists a machine $\tau_2$ ($\geq \tau_1$) such that
+$x_{i\tau_2}<\lfloor\frac{MS^i-L^{i-1}_{\tau_2}}{ETC_{i\tau_2}}\rfloor$,
+set
+\begin{eqnarray}
+x'_{ij}=\left\{ \begin{split} & x_{ij}-1, \text{ if } j=\tau_1  \\
+   & x_{ij}+1, \text{ if } j=\tau_2 \\
+  & x_{ij}, \text{ if } j\neq \tau_1, \tau_2.
+\end{split}\right.\end{eqnarray}
+It is easy to verify that $(x'_{i1}, x'_{i2}, \ldots, x'_{im})$ is a
+feasible solution for IP(11) whose objective value is no less than
+that of $(x_{i1}, x_{i2}, \ldots, x_{im})$, as
+$APC_{i\tau_1}ETC_{i\tau_1}\geq APC_{i\tau_2}ETC_{i\tau_2}$ (see
+(13)). Repeat the above process, until that
+  $x_{ij}=\lfloor\frac{MS^i-L^{i-1}_j}{ETC_{ij}}\rfloor$, for any machine $j$ ($\geq \tau$), where
+ $\tau$ is the minimum machine index such that $x_{i\tau}>0$.
+It implies that we find an optimal solution such that
+\begin{eqnarray*}
+x_{i1}=\cdots=x_{i(\tau-1)}=0,
+ \text{and} \hspace{1mm} x_{ij}=\lfloor\frac{MS^i-L^{i-1}_j}{ETC_{ij}}\rfloor, \text{ for }
+ j=\tau+1,\ldots,m.
+\end{eqnarray*}
+Thus, the theorem holds. \q
+
+
+Given the value of $MS^i$ in the optimal solution, for $j=m$, $m-1$,
+$\ldots$, 1, assign $\lfloor\frac{MS^i-L^{i-1}_j}{ETC_{ij}}\rfloor$
+tasks to machine $j$ until all tasks are assigned. According to
+Lemma 1, we find an optimal solution.  Although we do not know the
+value of $MS^i$ in the optimal solution, $MS^i$ must be in
+$\{L^{i-1}_j+kETC_{ij}|k=1,2,\ldots,a_i, j=1,2,\ldots,m\}$. Trying
+all possible values of $MS^i$ (at most $O(ma_i)$), we can find the
+optimal value of $MS^i$.
+
+For each $\tau=1,\ldots,m$, we only consider the variables $x_{ij}$
+($j=\tau,\ldots,m$), which implies that we schedule tasks of type
+$i$ to machines of type $j$ ($j=\tau,\ldots,M$). Solving $x_{ij}$ is
+equivalent to solve a solution to the following system of linear
+equations:
+\begin{eqnarray}
+\label{Equations}
+ \begin{split}
+& \sum_{j=\tau}^{m}x_{ij}=a_i;&\\
+ &\hspace{1mm} x_{ij}= \frac{MS^i-L^{i-1}_j}{ETC_{ij}},
+ j=\tau,\ldots,M&.
+\end{split}\end{eqnarray} Note that there are $m-\tau+2$ equations
+and $m-\tau+2$ variables $MS_i$ and $x_{ij}$ ($j=\tau,\ldots,M$).
+Thus, this system of linear equations can be solved in polynomial
+time. For each $\tau=1,\ldots,m$, we obtain a feasible solution
+$x_{ij}$. Comparing the objective values of these $m$ solution, we
+can find the best solution. Then, for $j=m$ to $1$, we assign
+$\lceil x_{ij}\rceil$ tasks of type $i$ to machines of type $j$,
+until all tasks are assigned. It is no hard to verify that the
+overall running time is polynomial in
+$n$ and $m$.
+
+
+
+
+
+\textbf{{\sc Algorithm 2} } shows the pseudo-code for the online
+algorithm.
+
+\noindent\hrulefill\\
+{\sc Algorithm 2} Online assigning the tasks of each type to
+machines.\\
+1: \textbf{For} $i=1$ to $n$ do\\
+2:  \hspace{5mm}  Relabel the indices of tasks such that $APC_{i1}ETC_{i1}\geq \ldots \geq
+  APC_{iM}ETC_{iM}$;\\
+3: \hspace{5mm}   \textbf{For} $\tau=1$ to $m$ do\\
+4:           \hspace{15mm}            Solve \ref{Equations} to find a solution $x^{\tau}_{ij}$;\\
+5:  \hspace{15mm}                     Comparing these $M$ solution to find
+ the best solution $x_{ij}$ such that\\
+6:   \hspace{15mm} $\frac{p-cE^{i-1}-c\sum_{j=1}^{M}x_{ij}
+APC_{ij}ETC_{ij}}{MS^i}$
+   is maximized.\\
+7:  \hspace{5mm} \textbf{End for}\\
+8:  \hspace{5mm}  \textbf{For} $j=M$ to $1$ do\\
+9: \hspace{15mm} Assign $\lceil x_{ij}\rceil$ tasks of type $i$ to
+machines of type $j$, until all tasks are assigned;\\
+10: \hspace{15mm} Update the $L_j$ of type $j$;\\
+11: \hspace{5mm} \textbf{End for}\\
+12:  \textbf{End for}\\
+ \vspace*{2mm}
+\noindent\hrulefill\\
+\section{Experimental Results}
+
+\section{Conclusion and future work}
+We feel that the local assignment algorithm in Section will find
+application in related areas.
+
+
+
+
+\section*{Acknowledgement}
+%We are grateful to the anonymous referees for numerous helpful
+%comments and suggestions which helped to improve the presentation of
+%our work.
+The work is
+supported in part by the National Natural Science Foundation of
+China [Nos. 61662088, 61762091], the Program
+for Excellent Young Talents, Yunnan University, and IRTSTYN.
+
+\begin{thebibliography}{}
+\bibitem{Abdi17} S. Abdi, L. PourKarimi, M. Ahmadi, F. Zargari, `` Cost minimization for deadline-constrained
+bag-of-tasks applications in federated hybrid clouds, '' {\it Future Generation Computer Systems
+},  vol. 71,  pp. 113-128, 2017.
+
+\bibitem{Braun01} T. D. Braun, H. J. Siegel, N. Beck, L. L. Boloni, M. Maheswaran,
+A. I. Reuther, J. P. Robertson, M. D. Theys, B. Yao, D. Hensgen, and
+R. F. Freund, `` A comparison of eleven static heuristics for
+mapping a class of independent tasks onto heterogeneous distributed
+computing systems, '' {\it Journal of Parallel and Distributed
+Computing},  vol. 61, no. 6, pp. 810-837, 2001.
+
+\bibitem{Champati17} J.P. Champati, B. Liang, ``Semi-online algorithms for computational task offloading with
+communication delay, '' {\it IEEE Transactions on Parallel and Distributed Systems },
+ vol. 28, no. 4, pp. 1189 - 1201, 2017.
+
+
+
+ \bibitem{Dayarathna} M. Dayarathna, Y. Wen, and R. Fa, `` Data center energy consumption modeling: a
+ survey, ''  {\it IEEE  Communications Surveys \& Tutorials},   vol. 18, no. 1, pp. 732-794 2016.
+
+\bibitem{Diaz14} C. O. Diaz, J. E. Pecero, and P. Bouvry, `` Scalable, low complexity, and
+fast greedy scheduling heuristics for highly heterogeneous
+distributed computing systems,'' {\it The Journal of
+Supercomputing},  vol.  67, no. 3,  pp. 837-853, 2014.
+
+\bibitem{Ebrahimirad} V. Ebrahimirad, M. Goudarzi, and A. Rajabi, `` Energy-aware scheduling for
+precedence-constrained parallel virtual machines in virtualized data
+centers, '' {\it Journal of Grid Computing}, vol.  13,  no.  2, pp.
+233-253, 2015.
+
+\bibitem{Friese12} R. Friese, T. Brinks, C. Oliver, H. J. Siegel, and A. A.
+Maciejewski, ``Analyzing the trade-offs between minimizing makespan
+and minimizing energy consumption in a heterogeneous resource
+allocation problem, '' in {\it  The Second International Conference
+on Advanced Communications and Computation}, pp. 81-89, 2012.
+
+\bibitem{Friese13} R. Friese, B. Khemka, A.A. Maciejewski, H.J. Siegel, G.A.
+Koenig, S. Powers, M. Hilton, J. Rambharos, G. Okonski, and S. W.
+Poole, ``An analysis framework for investigating the trade-offs
+between system performance and energy consumption in a heterogeneous
+computing environment'', in {\it IEEE 27th International Parallel
+and Distributed Processing Symposium Workshops}, pp. 19-30,  2013.
+
+\bibitem{Friese13b} R. Friese, T. Brinks, C. Oliver, H.J. Siegel, A.A. Maciejewski,
+and S. Pasricha, ``A machine-by-machine analysis of a bi-objective
+resource allocation problem'', in {\it International Conference on
+Parallel and Distributed Processing Technologies and Applications},
+pp. 3-9, 2013.
+
+\bibitem{Graham69} R. Graham, ``Bounds on multiprocessing timing anomalies, '' {\it SIAM
+Journal on Applied Mathematics},   vol. 17,  no. 2,  pp. 416-429,
+1969.
+
+
+
+\bibitem{Hameed} A. Hameed, A. Khoshkbarforoushha, R. Ranjan, P.
+P.h Jayaraman, J. Kolodziej, P. Balaji, S. Zeadally, Q. M. Malluhi,
+N. Tziritas, A. Vishnu, S. U. Khan, and A. Zomaya, ``A survey and
+taxonomy on energy efficient resource allocation techniques for
+cloud computing systems,'' {\it Computing}, vol. 98, pp. 751-774,
+2016.
+
+
+% \bibitem{Huang11} B. C. Huang and T. Jebara, ``Fast b-matching via sufficient selection
+% belief propagation, '' {\it  Journal of Machine Learning Research -
+% Proceedings Track},   vol.  15, pp. 361-369, 2011.
+
+% \bibitem{Lee} Y.C. Lee, A. Y. Zomaya, `` Energy efficient utilization of resources
+% in cloud computing systems, '' {\it The Journal of Supercomputing},
+% vol. 60,   no.  2,  pp. 268-280, 2012.
+
+
+
+\bibitem{Hsu14} C. H. Hsu, K. D. Slagter, S. C. Chen, and Y. C. Chung, ``Optimizing energy consumption with task consolidation in
+clouds, '' {\it   Information Sciences}, vol. 258, no. 10, pp.
+ 452-462, 2014.
+
+  \bibitem{Karmarkar} N. Karmarkar, ``A new polynomial-time algorithm for linear
+  programming, '' in {\it Proceedings of the sixteenth annual ACM symposium on Theory of
+  computing (STOC)}, pp.  302-311, 1984.
+
+\bibitem{Kaur15} T. Kaur, and I. Chana, ``Energy efficiency techniques in cloud computing: a survey and
+taxonomy, '' {\it ACM Computing Surveys},  vol. 48, no. 2, Article
+No. 22, 2015.
+
+\bibitem{Khemka15} B. Khemka,  R. Friese, S. Pasricha, A. A.
+Maciejewski, H. J. Siegel, G. A. Koenig, S.  Powers, M. Hilton, R.
+Rambharos, and S. Poole,  ``Utility maximizing dynamic resource
+management in an over subscribed energy-constrained heterogeneous
+computing system,'' {\it  Sustainable Computing: Informatics and
+Systems}, vol.  5, pp. 14-30, 2015.
+
+  \bibitem{Khemka152} B. Khemka, R. Friese, L. D. Briceno, H. J. Siegel, A. A.
+Maciejewski, G. A. Koenig, C. Groer, G. Okonski, M. M. Hilton, R.
+Rambharos, and S. Poole, `` Utility functions and resource
+management in an oversubscribed heterogeneous computing environment,
+'' {\it IEEE Transactions on Computers},  vol. 64,   no. 1, pp.
+2394-2407, 2015.
+
+
+  \bibitem{Juarez18} F. Juarez, J. Ejarque, and R. M. Badia, ``Dynamic energy-aware
+scheduling for parallel task-based application in cloud computing,''
+Future Generation Computer Systems, vol. 78, pp. 257-271, 2018.
+
+
+
+
+% \bibitem{Lenstra90} J.K. Lenstra,  D.B. Shmoys, and E. Tardos,  ``Approximation algorithms for
+% scheduling unrelated parallel machines, ''  {\it Mathematical
+% Programming},  vol.  46,   no. 3, pp.  259-271,  1990.
+
+ \bibitem{Li19} W. Li, X. Liu, X. Cai, X. Zhang, `` Approximation algorithm for the energy-aware profit maximizing problem in
+  heterogeneous computing systems,''   {\it
+ Journal of Parallel and Distributed Computing}, vol. 124, 70-77, 2019.
+
+ \bibitem{Sajid17} M. Sajid, Z. Raza, `` Energy-aware stochastic scheduler for batch of precedence-constrained
+ jobs on heterogeneous computing system,''   {\it Energy}, vol. 125,   pp.
+258-274,  2017.
+
+
+
+\bibitem{Mashayekhy}  L. Mashayekhy, M.M. Nejad, D. Grosu, Q. Zhang, and W. Shi,
+`` Energy-aware scheduling of mapreduce jobs for big data
+applications, '' {\it
+ IEEE Transactions on  Parallel and Distributed Systems}, vol. 26, no. 10,
+pp. 2720-2733, 2015.
+
+\bibitem{Orgerie14} A.-C. Orgerie, M. D. de Assuncao, and L. Lefevre,  ``A survey on techniques
+ for improving the energy efficiency of large-scale distributed
+ systems, '' {\it ACM Computing Surveys},  vol. 46, no.  4, Article No. 47,  2014.
+
+ \bibitem{Oxley15} M.A.  Oxley, S. Pasricha,  A.A.  Maciejewski, H.J. Siegel, J. Apodaca,
+D. Young,  L. Briceno,  J. Smith, S. Bahirat, B. Khemka, A. Ramirez,
+and Y. Zou, `` Makespan and energy robust stochastic static resource
+allocation of bags-of-tasks to a heterogeneous computing system, ''
+{\it IEEE Transactions on Parallel and Distributed Systems},  vol.
+26, no. 10, pp.  2791-2805, 2015.
+
+%   \bibitem{Shmoys93} D.B. Shmoys, and E. Tardos,  ``An approximation algorithm
+% for the generalized  assignment  problem, '' {\it Mathematical
+% Programming},  vol. 62,   no. 1-3, pp. 461-474, 1993.
+
+
+ \bibitem{Tarplee151} K. M. Tarplee,  R. Friese, A. A. Maciejewski, and H. J. Siegel,
+``Scalable linear programming based resource allocation for makespan
+minimization in heterogeneous computing systems, '' {\it Journal of
+Parallel and Distributed Computing},  vol.  84, pp. 76-86, 2015.
+% Previous version in K. M. Tarplee, R. Friese, A. A. Maciejewski, and
+% H. J. Siegel, `` Efficient and scalable pareto front generation for
+% energy and makespan in heterogeneous computing systems,'' in {\it
+% Recent Advances in Computational Optimization: Results of the
+% Workshop on Computational Optimization}, pp. 161-180, 2015.
+
+\bibitem{Tarplee152} K. M. Tarplee, R. Friese, A. A. Maciejewski, H. J. Siegel, and E.
+Chong,`` Energy and makespan tradeoffs in heterogeneous computing
+systems using efficient linear programming techniques, '' {\it IEEE
+Transactions on Parallel and Distributed Systems}, vol. 27, no. 6,
+pp. 1633-1646, 2016.
+
+% Previous version presented in  K.M. Tarplee, R.
+% Friese, A.A. Maciejewski, and H.J. Siegel, ``Efficient and scalable
+% computation of the energy and makespan pareto front for
+% heterogeneous computing systems, '' in {\it Federated Conference on
+%¡¡Computer Science and Information Systems, Workshop on Computational
+%¡¡Optimization}, pp. 401-408, 2013.
+
+\bibitem{Tarplee14} K.M. Tarplee, A.A. Maciejewski, and H.J. Siegel,
+ ``Energy-aware profit maximizing scheduling algorithm for
+heterogeneous computing systems, '' in {\it 14th IEEE/ACM
+International Symposium on Cluster, Cloud and Grid Computing}, pp.
+595-603, 2014.
+
+
+
+\bibitem{Tchana16}  A. Tchana,  N. D. Palma,  I. Safieddine, and D.
+Hagimont, ``Software consolidation as an efficient energy and cost
+saving solution,'' {\it  Future Generation Computer Systems},
+vol. 58, pp. 1-12, 2016.
+
+
+\bibitem{Zhang18}J. Zhang, N. Xie, X. Zhang, W. Li, ``An online auction mechanism for cloud computing resource allocation
+ and pricing based on user evaluation and cost,'' {\it  Future Generation Computer Systems },
+vol. 89, pp. 286-299, 2018.
+
+ \bibitem{ZhangF18} F. Zhang, J. Cao, K. Li, S.U. Khan, K. Hwang, ``Multi-objective scheduling of many
+  tasks in cloud platforms,'' {\it  Future Generation Computer Systems },
+vol. 37, pp. 309-320, 2014.
+
+ \bibitem{Zheng18} W. Zheng, Y. Qin, E. Bugingo, D. Zhang, J. Chen, ``Cost optimization for
+  deadline-aware scheduling of big-data processing jobs on clouds,'' {\it   Future Generation
+  Computer Systems },
+vol. 82, pp. 244-255, 2018.
+
+
+
+\bibitem{Clp}(2013, March) Coin-or clp. [Online]. Available:  https://projects.coinor. org/Clp
+
+   \bibitem{Benchmark} (2013, May) Intel core i7 3770k power consumption, thermal.
+[Online]. Available: http://openbenchmarking.org/result/
+1204229-SU-CPUMONITO81
+
+
+
+\end{thebibliography}
+
+\end{document}
