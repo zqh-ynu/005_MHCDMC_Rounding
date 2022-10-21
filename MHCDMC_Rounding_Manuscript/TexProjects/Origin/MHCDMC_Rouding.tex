@@ -1,0 +1,154 @@
+% weidong81, manuscript 1, 2014
+
+% IEEE/ACM CCGrid 2015
+% The Due Date is Jan 30, 2015
+\documentclass[11pt,a4paper]{article}
+
+%Package used in the paper
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{graphics, color}
+\usepackage{multirow}
+\def\q{\hfill\rule{0.5ex}{1.3ex}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{algorithm}[theorem]{Algorithm}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{operation}{Operation}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}[section]{Conjecture}
+\newtheorem{observation}[theorem]{Observation}
+
+
+\textwidth 16cm \textheight 22.1cm \hoffset=-1.4cm \voffset=-1.6cm
+%\textwidth 16cm \textheight 22.7cm \hoffset=-1.6cm \voffset=-2.5cm
+%\renewcommand\baselinestretch{1.5} %This sentence is for "double-spaced".
+
+\linespread{1.5}% The \linespread{spacing} command allows you to set any line spacing you like.
+
+
+
+\baselineskip=7mm
+\title{MHCDMC Rouding}
+
+\author{Qinghui Zhang$^1$, Weidong Li$^2$, Qian Su$^1$ Xuejie Zhang$^{1,}$ \thanks{Correspondence: xjzhang@ynu.edu.cn (X. Zhang)}\\
+{\small 1. School of Information Science and Engineering, Yunnan University, Kunming 650504,  China}\\
+{\small 2. School of Mathematics and Statistics,  Yunnan University, Kunming 650504, China}}
+% \date{}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+abstract
+
+{\bf keywords}: high performance computing; resource allocation;
+scheduling; approximation algorithm; bag-of-tasks
+\end{abstract}
+\newpage
+\section{Introduction}
+%% 中文测试 Chinese Test
+
+%%由于无人机(unmanned aerial vehicles, UAVs)的可操作性性与不断增长的可负担性，UAV在无线通信系统中有着许多的潜在应用。尤其在一些例如战场或受灾现场等没有通信基础设施覆盖的区域，无人机赋能的移动基站(mobile base stations, MBSs)可以很容易地部署在这些区域并提供无线通信连接。与传统的地面基站相比(base stations, BSs)(包含一些车载基站)，为了达到信号覆盖某片区域中位置已知的用户，UAV赋能的MBSs可以部署在任何位置。
+
+% 摘抄自Placement Optimization of UAV-Mounted Mobile Base Stations, Introduction第一段
+With their maneuverability and increasing affordability, unmanned aerial vehicles (UAVs) have many potential applications in wireless communication systems [1]. In particular, UAV-mounted mobile base stations (MBSs) can be deployed to provide wireless connectivity in areas without infrastructure coverage such as battlefields or disaster scenes. Unlike terrestrial base stations (BSs), even those mounted on ground vehicles, UAV-mounted MBSs can be deployed in any location and move along any trajectory constrained only by their aeronautical characteristics, in order to cover the ground terminals (GTs) in a given area based on their known locations.
+
+%% 摘抄自“基于多智能体强化学习的大规模灾后用户分布式覆盖优化” 第一段
+%在发生重大自然灾害后，地面的基础通信设施通常会遭到毁坏而产生通信中断，重要的通信信息被阻绝，危及受灾群众的生命安全，加剧灾后救援的难度。无人机因为具有快速部署等优点，能够通过装备应急基站提供有效的空地视距链路覆盖受灾地区，在应急通信领域具有广泛的应用前景[1]。
+After a major natural disaster, the ground-based communication facilities are usually destroyed and communication is interrupted, and important communication information is blocked, which endangers the lives of the affected people and aggravates the difficulty of post-disaster rescue. UAVs have wide application prospects in the field of emergency communication because of their advantages such as rapid deployment and the ability to provide effective air-ground line-of-sight links to cover the affected areas by equipping emergency base stations [1].
+
+% 原创
+%%为了保障人民群众的生命财产安全，加快灾后重建恢复工作，我们需要尽快为用户提供通讯保障。根据实际的通信需求，倚靠人口分布、受灾情况等信息选定一些潜在的可选无人机部署位置。在通信需求的约束下选择最少的无人机数量恢复该片区域的通信网络是一个至关重要的问题。由于大型无人机相对于较小的无人机拥有更大的能源储备，较大的无人机能用更高的功率发射信号，并且能拥有更大的带宽容量来获得更好的信号覆盖性能。因此在本文中我们假设拥有更大信号发射功率的无人机基站，其带宽容量更大。
+In order to protect people's life and property and speed up the post-disaster reconstruction and recovery work, we need to provide communication security for users as soon as possible. According to the actual communication demand, some potential optional UAV deployment locations are selected by relying on information such as population distribution and disaster situation. Selecting the minimum number of UAVs to restore the communication network in that area under the constraints of communication needs is a critical issue. Since larger UAVs have larger energy reserves compared to smaller UAVs, larger UAVs can transmit signals with higher power and have greater bandwidth capacity to obtain better signal coverage performance. Therefore, in this paper we assume that the UAV base station with higher signal transmitting power has a larger bandwidth capacity.
+\section{Related work}
+ related work
+\section{System model}
+%%在某受灾区域中，我们预设了m个位点及可能部署于该位点的MBS。虽然在每个位置部署都MBS能够满足所有用户的通信需求，但这是十分低效且不切实际的。我们需要尽快选择其中尽可能少的位点部署对应的MBS，尽快为n个用户恢复通讯服务。我们分别用U与A表示用户与MBS位点的集合。对于每个用户uj，都有带宽需求BRj。MBS ai的信号发射功率为pi，且带宽资源有限，为BWi。对于为了能在保证所有用户的通信信干噪比不小于SINR_min的前提下，尽快为用户恢复通讯，我们需要选择尽可能少的部署MBSs。我们引入决策变量xij与yi。用yi表示是否选择ai作为最终的MBS部署策略，当ai=1表示选择MBS ai。用xij表示是否令ai为uj分配带宽资源提供服务，当xij=1时表明uj被ai服务。
+In a disaster area, we have pre-planned $m$ loci and possible MBSs to be deployed in. Although deploying MBSs in each location can satisfy the communication needs of all users, it is very inefficient and impractical. We need to select as few loci as possible to deploy the corresponding MBSs as soon as possible to restore communication services for $n$ users. We denote the set of users and MBS loci by $U$ and $A$, respectively. For each user $u_j \in U$, there is a bandwidth requirement $BR_j$. The signal transmit power of MBS $a_i \in A$ is $p_i$, and the bandwidth resource is limited to $BW_i$. For in order to be able to resume communication for users as soon as possible while ensuring that the communication signal-to-noise ratio of all users is not less than $SINR_{min}$, we need to select as few deployed MBSs as possible. we introduce decision variables $x_{ij}$ and $y_i$. $y_i$ denotes whether to choose $a_i$ as the final MBS deployment policy, and when $y_i=1$ indicates that MBS $a_i$ is chosen. $x_{ij}$ is used to indicate whether to make $a_i$ allocate bandwidth resources for $u_j$ to provide services, and when $x_{ij}=1$ indicates that $u_j$ is served by $a_i$.
+
+
+%%无人机赋能的MBS与用户之间的通信采用sub-6GHz频段的空地对接通信链接，其中视距无线传输(Line of Sight, LoS)占主导地位。a与u之间的路径损耗可以表示为
+The communication between the UAV-enabled MBS and the user uses an air-to-ground communication link in the sub-6 GHz band, where Line of Sight (LoS) dominates. A The path loss between $u_j$ and $a_i$ can be expressed as:
+\begin{eqnarray}
+	{L_{ij}}({\rm{dB}}) = 20\lg ({d_{ij}}) + 20\lg (\frac{{4\pi f}}{c}) + {\eta _{LoS}},
+\end{eqnarray}
+%其中，d表示a与u之间的距离，f表示载波频率，c代表光速，e代表 LoS 的阴影衰落损耗，是一个常量。a与u之间的信干噪比为
+where $d_{ij}$ denotes the distance between $a_i$ and $u_j$, $f$ denotes the carrier frequency, $c$ represents the speed of light, and $\eta _{LoS}$ represents the shadow fading loss of LoS, which is a constant. the signal-to-noise ratio between $a_i$ and $u_j$ is:
+\begin{eqnarray}
+	SINR_{ij} = \frac{{{G_{ij}}{p_i}}}{{{N_I} + {N_0}}},
+\end{eqnarray}
+% G表示a与u之间的信道增益，NI表示该环境中的干扰噪声功率，N0表示白噪声功率。信道增益g受路径损耗影响，满足以下关系
+$G_{ij}$ denotes the channel gain between $a_i$ and $u_j$, $N_I$ denotes the interference noise power in this environment, and $N_0$ denotes the white noise power. The channel gain $G_{ij}$ is affected by the path loss and satisfies the following relationship:
+\begin{eqnarray}
+	{G_{ij}}{p_i}({\rm{dB}}) = {p_i}({\rm{dB}}) - {L_{ij}}({\rm{dB}}).
+\end{eqnarray}
+
+
+%根据以上关系，用户的传输速率可以表示为
+According to the above relationship, $u_j$'s data rate $DR_j$ can be expressed as
+\begin{eqnarray}
+	D{R_j} = B{R_j}{\log _2}(1 + SIN{R_{ij}}).
+\end{eqnarray}
+
+
+%
+Based on the above definition, we can get the integer programming form of the problem.
+\begin{align}
+	\min  & \sum\nolimits_{{a_i} \in A} {{y_i}}  \label{ip:1}\\
+	s.t. &  {x_{ij}} \le {y_i},\;\forall {u_j} \in U,\;\forall {a_i} \in A. \tag{\ref{ip:1}{a}}\label{ip:1.1}\\
+	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},\;\forall {a_i} \in A. \tag{\ref{ip:1}{b}}\label{ip:1.2}\\
+	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,\;\forall {u_j} \in U. \tag{\ref{ip:1}{c}}\label{ip:1.3}\\
+	&  SIN{R_j} \ge {x_{ij}}SIN{R_{\min }},\;\forall {u_j} \in U. \tag{\ref{ip:1}{d}}\label{ip:1.4}\\
+	&  {x_{ij}} \in \left\{ {0,1} \right\},\forall u_j \in U,\forall {a_i} \in A \tag{\ref{ip:1}{e}}\label{ip:1.5}\\
+	&  {y_{i}} \in \left\{ {0,1} \right\},\forall {a_i} \in A \tag{\ref{ip:1}{f}}\label{ip:1.6}
+\end{align}
+
+
+%约束(1.1)的含义是，只有选择MBS ai之后，uj才能被ai服务。约束(1.2)是每一个MBS的带宽资源容量资源约束，它服务的用户带宽需求之和不能超过其自身的能力。约束(1.3)的表示每一个用户都必须被服务。约束(1.4)的含义是如果uj被ai服务，那么uj的信噪比要大于SINR_min。约束(1.5)与(1.6)为两个整数决策变量约束。我们将整数规划(1)松弛后能得到其线性规划(2):
+Constraint (\ref{ip:1.1}) means that $u_j$ can be served by $a_i$ only after the MBS $a_i$ is selected. Constraint (\ref{ip:1.2}) is the bandwidth resource capacity resource constraint of each MBS, the sum of bandwidth demand of users it serves cannot exceed its own capacity. Constraint (\ref{ip:1.3}) of indicates that every user must be served. Constraint (\ref{ip:1.4}) means that if $u_j$ is served by $a_i$, then the SINR of $u_j$ has to be greater than $SINR_{min}$. Constraints (\ref{ip:1.5}) and (\ref{ip:1.6}) are two integer decision variable constraints. We relax the integer programming (\ref{ip:1}) to be able to obtain its linear programming (\ref{lp:2}):
+
+\begin{align}
+	\min  & \sum\nolimits_{{a_i} \in A} {{y_i}}  \label{lp:2}\\
+	s.t. &  {x_{ij}} \le {y_i},\;\forall {u_j} \in U,\;\forall {a_i} \in A. \tag{\ref{lp:2}{a}}\label{lp:2.1}\\
+	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},\;\forall {a_i} \in A. \tag{\ref{lp:2}{b}}\label{lp:2.2}\\
+	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,\;\forall {u_j} \in U. \tag{\ref{lp:2}{c}}\label{lp:2.3}\\
+	&  SIN{R_j} \ge {x_{ij}}SIN{R_{\min }},\;\forall {u_j} \in U. \tag{\ref{lp:2}{d}}\label{lp:2.4}\\
+	&  {x_{ij}} \ge 0,\forall u_j \in U,\forall {a_i} \in A \tag{\ref{lp:2}{e}}\label{lp:2.5}\\
+	&  0 \le {y_i} \le 1,\forall {a_i} \in A \tag{\ref{lp:2}{f}}\label{lp:2.6}
+\end{align}
+
+\section{Rounding}
+In this section, we present an efficient rounding algorithm for the problem.
+
+\section{Experimental Results}
+
+\section{Conclusion and future work}
+We feel that the local assignment algorithm in Section will find
+application in related areas.
+
+
+
+
+\section*{Acknowledgement}
+%We are grateful to the anonymous referees for numerous helpful
+%comments and suggestions which helped to improve the presentation of
+%our work.
+The work is
+supported in part by the National Natural Science Foundation of
+China [Nos. 61662088, 61762091], the Program
+for Excellent Young Talents, Yunnan University, and IRTSTYN.
+
+\begin{thebibliography}{}
+
+
+
+
+\end{thebibliography}
+
+\end{document}
