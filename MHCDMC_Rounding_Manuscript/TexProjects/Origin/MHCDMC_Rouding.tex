@@ -125,8 +125,8 @@ Constraint (\ref{ip:1.1}) means that $u_j$ can be served by $a_i$ only after the
 	&  0 \le {y_i} \le 1,&&\forall {a_i} \in A. \tag{\ref{lp:2}{f}}\label{lp:2.6}
 \end{align}
 
-% 我们能在多项式时间内得到线性规划6的最优解sigma，这个解是一个分数解。在这个解中，对于任意xij>0对应的用户与MBS，它们之间的SINRij>=SINRmin. 在真实的场景中，MBS可以通过频谱复用等方法来增强自身的信号覆盖能力。我们定义SINRmin'(<SINRmin)为采用复用技术之后的最小信干噪比。当SINRmin'<=SINRij<=SINRmin时，ai可以通过采取复用技术为uj提供具有较好的信号质量的服务。此外，MBS也能通过增加信号功率来增强信号覆盖能力。令pi’为增强之后的功率。
-
+% 我们能在多项式时间内得到线性规划6的最优解sigma，这个解是一个分数解。在这个解中，对于任意xij>0对应的用户与MBS，它们之间的SINRij>=SINRmin。 在真实的场景中，MBS可以通过频谱复用等方法来增强自身的信号覆盖能力。我们定义SINRmin'(<SINRmin)为采用复用技术之后的最小信干噪比。当SINRmin'<=SINRij<=SINRmin时，ai可以通过采取复用技术为uj提供具有较好的信号质量的服务。此外，MBS也能通过增加信号功率来增强信号覆盖能力。令pi’为增强之后的功率。
+We can obtain the optimal solution $\sigma=(x,y)$ of the linear programming \ref{lp:2} in polynomial time, which is a fractional solution. In this solution, for any $x_{ij}>0$ , we can ensure that $SINR_{ij}\ge SINR_{min}$.
 
 %对于SINRmin'与pi'这两个变量，他们的变化幅度是有限的。本文并不关注于SINRmin'能变得多小或pi'能变得多大，我们只给出了他们变化幅度的定义如下。
 \begin{eqnarray}
