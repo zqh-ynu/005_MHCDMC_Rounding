@@ -69,8 +69,10 @@ In order to protect people's life and property and speed up the post-disaster re
 \section{Related work}
  related work
 \section{System model}
-%%在某受灾区域中，我们预设了m个位点及可能部署于该位点的MBS。虽然在每个位置部署都MBS能够满足所有用户的通信需求，但这是十分低效且不切实际的。我们需要尽快选择其中尽可能少的位点部署对应的MBS，尽快为n个用户恢复通讯服务。我们分别用U与A表示用户与MBS位点的集合。对于每个用户uj，都有带宽需求BRj。MBS ai的信号发射功率为pi，且带宽资源有限，为BWi。对于为了能在保证所有用户的通信信干噪比不小于SINR_min的前提下，尽快为用户恢复通讯，我们需要选择尽可能少的部署MBSs。我们引入决策变量xij与yi。用yi表示是否选择ai作为最终的MBS部署策略，当ai=1表示选择MBS ai。用xij表示是否令ai为uj分配带宽资源提供服务，当xij=1时表明uj被ai服务。
-In a disaster area, we have pre-planned $m$ loci and possible MBSs to be deployed in. Although deploying MBSs in each location can satisfy the communication needs of all users, it is very inefficient and impractical. We need to select as few loci as possible to deploy the corresponding MBSs as soon as possible to restore communication services for $n$ users. We denote the set of users and MBS loci by $U$ and $A$, respectively. For each user $u_j \in U$, there is a bandwidth requirement $BR_j$. The signal transmit power of MBS $a_i \in A$ is $p_i$, and the bandwidth resource is limited to $BW_i$. For in order to be able to resume communication for users as soon as possible while ensuring that the communication signal-to-noise ratio of all users is not less than $SINR_{min}$, we need to select as few deployed MBSs as possible. we introduce decision variables $x_{ij}$ and $y_i$. $y_i$ denotes whether to choose $a_i$ as the final MBS deployment policy, and when $y_i=1$ indicates that MBS $a_i$ is chosen. $x_{ij}$ is used to indicate whether to make $a_i$ allocate bandwidth resources for $u_j$ to provide services, and when $x_{ij}=1$ indicates that $u_j$ is served by $a_i$.
+%%在某受灾区域中，我们预设了m个位点及可能部署于该位点的MBS。虽然在每个位置部署都MBS能够满足所有用户的通信需求，但这是十分低效且不切实际的。我们需要尽快选择其中尽可能少的位点部署对应的MBS，尽快为n个用户恢复通讯服务。我们分别用U与A表示用户与MBS位点的集合。对于每个用户uj，都有带宽需求BRj。MBS ai的信号发射功率为pi，且带宽资源有限，为BWi。
+%对于为了能在保证所有用户的通信信干噪比不小于SINR_min的前提下，尽快为用户恢复通讯，我们需要选择尽可能少的部署MBSs。我们引入决策变量xij与yi。用yi表示是否选择ai作为最终的MBS部署策略，当ai=1表示选择MBS ai。用xij表示是否令ai为uj分配带宽资源提供服务，当xij=1时表明uj被ai服务。
+In a disaster area, we have pre-planned $m$ loci and possible MBSs to be deployed in. Although deploying MBSs in each location can satisfy the communication needs of all users, it is very inefficient and impractical. We need to select as few loci as possible to deploy the corresponding MBSs as soon as possible to restore communication services for $n$ users. We denote the set of users and MBS loci by $U$ and $A$, respectively. For each user $u_j \in U$, there is a bandwidth requirement $BR_j$. The signal transmit power of MBS $a_i \in A$ is $p_i$, and the bandwidth resource is limited to $BW_i$. 
+In order to resume communication for users as soon as possible while ensuring that the communication signal-to-noise ratio of all users is not less than $SINR_{min}$, we need to select as few deployed MBSs as possible. we introduce decision variables $x_{ij}$ and $y_i$. $y_i$ denotes whether to choose $a_i$ as the final MBS deployment policy, and when $y_i=1$ indicates that MBS $a_i$ is chosen. $x_{ij}$ is used to indicate whether to make $a_i$ allocate bandwidth resources for $u_j$ to provide services, and when $x_{ij}=1$ indicates that $u_j$ is served by $a_i$.
 
 
 %%无人机赋能的MBS与用户之间的通信采用sub-6GHz频段的空地对接通信链接，其中视距无线传输(Line of Sight, LoS)占主导地位。a与u之间的路径损耗可以表示为
@@ -100,13 +102,13 @@ According to the above relationship, $u_j$'s data rate $DR_j$ can be expressed a
 %
 Based on the above definition, we can get the integer programming form of the problem.
 \begin{align}
-	\min  & \sum\nolimits_{{a_i} \in A} {{y_i}}  \label{ip:1}\\
-	s.t. &  {x_{ij}} \le {y_i},\;\forall {u_j} \in U,\;\forall {a_i} \in A. \tag{\ref{ip:1}{a}}\label{ip:1.1}\\
-	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},\;\forall {a_i} \in A. \tag{\ref{ip:1}{b}}\label{ip:1.2}\\
-	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,\;\forall {u_j} \in U. \tag{\ref{ip:1}{c}}\label{ip:1.3}\\
-	&  SIN{R_j} \ge {x_{ij}}SIN{R_{\min }},\;\forall {u_j} \in U. \tag{\ref{ip:1}{d}}\label{ip:1.4}\\
-	&  {x_{ij}} \in \left\{ {0,1} \right\},\forall u_j \in U,\forall {a_i} \in A \tag{\ref{ip:1}{e}}\label{ip:1.5}\\
-	&  {y_{i}} \in \left\{ {0,1} \right\},\forall {a_i} \in A \tag{\ref{ip:1}{f}}\label{ip:1.6}
+	\min \quad  & \sum\nolimits_{{a_i} \in A} {{y_i}} && \label{ip:1}\\
+	s.t.\quad &  {x_{ij}} \le {y_i}  &&\forall {u_j} \in U,\;\forall {a_i} \in A. \tag{\ref{ip:1}{a}}\label{ip:1.1}\\
+	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},&&\forall {a_i} \in A. \tag{\ref{ip:1}{b}}\label{ip:1.2}\\
+	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,&&\forall {u_j} \in U. \tag{\ref{ip:1}{c}}\label{ip:1.3}\\
+	&  {x_{ij}} = 0,&&\forall {u_j} \in U,\forall {a_i} \in A\;{\text{such that }}SIN{R_{ij}} < SIN{R_{\min }}, \tag{\ref{ip:1}{d}}\label{ip:1.4}\\
+	&  {x_{ij}} \in \left\{ {0,1} \right\},&&\forall u_j \in U,\forall {a_i} \in A \tag{\ref{ip:1}{e}}\label{ip:1.5}\\
+	&  {y_{i}} \in \left\{ {0,1} \right\},&&\forall {a_i} \in A. \tag{\ref{ip:1}{f}}\label{ip:1.6}
 \end{align}
 
 
@@ -114,14 +116,29 @@ Based on the above definition, we can get the integer programming form of the pr
 Constraint (\ref{ip:1.1}) means that $u_j$ can be served by $a_i$ only after the MBS $a_i$ is selected. Constraint (\ref{ip:1.2}) is the bandwidth resource capacity resource constraint of each MBS, the sum of bandwidth demand of users it serves cannot exceed its own capacity. Constraint (\ref{ip:1.3}) of indicates that every user must be served. Constraint (\ref{ip:1.4}) means that if $u_j$ is served by $a_i$, then the SINR of $u_j$ has to be greater than $SINR_{min}$. Constraints (\ref{ip:1.5}) and (\ref{ip:1.6}) are two integer decision variable constraints. We relax the integer programming (\ref{ip:1}) to be able to obtain its linear programming (\ref{lp:2}):
 
 \begin{align}
-	\min  & \sum\nolimits_{{a_i} \in A} {{y_i}}  \label{lp:2}\\
-	s.t. &  {x_{ij}} \le {y_i},\;\forall {u_j} \in U,\;\forall {a_i} \in A. \tag{\ref{lp:2}{a}}\label{lp:2.1}\\
-	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},\;\forall {a_i} \in A. \tag{\ref{lp:2}{b}}\label{lp:2.2}\\
-	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,\;\forall {u_j} \in U. \tag{\ref{lp:2}{c}}\label{lp:2.3}\\
-	&  SIN{R_j} \ge {x_{ij}}SIN{R_{\min }},\;\forall {u_j} \in U. \tag{\ref{lp:2}{d}}\label{lp:2.4}\\
-	&  {x_{ij}} \ge 0,\forall u_j \in U,\forall {a_i} \in A \tag{\ref{lp:2}{e}}\label{lp:2.5}\\
-	&  0 \le {y_i} \le 1,\forall {a_i} \in A \tag{\ref{lp:2}{f}}\label{lp:2.6}
+	\min \quad & \sum\nolimits_{{a_i} \in A} {{y_i}}&&  \label{lp:2}\\
+	s.t.\quad &  {x_{ij}} \le {y_i},&&\forall {u_j} \in U,\forall {a_i} \in A. \tag{\ref{lp:2}{a}}\label{lp:2.1}\\
+	&  \sum\nolimits_{{u_j} \in U} {({x_{ij}} \cdot B{R_j})}  \le {y_i} \cdot B{W_i},&&\forall {a_i} \in A. \tag{\ref{lp:2}{b}}\label{lp:2.2}\\
+	&  \sum\nolimits_{{a_i} \in S} {{x_{ij}}}  = 1,&&\forall {u_j} \in U. \tag{\ref{lp:2}{c}}\label{lp:2.3}\\
+	&  {x_{ij}} = 0,&&\forall {u_j} \in U,\forall {a_i} \in A\;{\text{such that }}SIN{R_{ij}} < SIN{R_{\min }}, \tag{\ref{lp:2}{d}}\label{lp:2.4}\\
+	&  {x_{ij}} \ge 0,&&\forall u_j \in U,\forall {a_i} \in A \tag{\ref{lp:2}{e}}\label{lp:2.5}\\
+	&  0 \le {y_i} \le 1,&&\forall {a_i} \in A. \tag{\ref{lp:2}{f}}\label{lp:2.6}
 \end{align}
+
+% 我们能在多项式时间内得到线性规划6的最优解sigma，这个解是一个分数解。在这个解中，对于任意xij>0对应的用户与MBS，它们之间的SINRij>=SINRmin. 在真实的场景中，MBS可以通过频谱复用等方法来增强自身的信号覆盖能力。我们定义SINRmin'(<SINRmin)为采用复用技术之后的最小信干噪比。当SINRmin'<=SINRij<=SINRmin时，ai可以通过采取复用技术为uj提供具有较好的信号质量的服务。此外，MBS也能通过增加信号功率来增强信号覆盖能力。令pi’为增强之后的功率。
+
+
+%对于SINRmin'与pi'这两个变量，他们的变化幅度是有限的。本文并不关注于SINRmin'能变得多小或pi'能变得多大，我们只给出了他们变化幅度的定义如下。
+\begin{eqnarray}
+	{\varepsilon ^p} = \frac{{{p_i}' - {p_i}}}{{{p_i}}}
+\end{eqnarray}
+
+
+\begin{eqnarray}
+	{\varepsilon ^{SINR}} = \frac{{SIN{R_{\min }} - SIN{R_{\min }}'}}{{SIN{R_{\min }}}}
+\end{eqnarray}
+
+
 
 \section{Rounding}
 In this section, we present an efficient rounding algorithm for the problem.
