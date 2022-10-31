@@ -8,9 +8,13 @@
 \usepackage{amssymb, amsmath, amsthm}
 \usepackage{graphics, color}
 \usepackage{multirow}
+\usepackage{algorithmic} % 算法相关格式
+\usepackage{algorithm}
+\usepackage{float}
+
 \def\q{\hfill\rule{0.5ex}{1.3ex}}
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{algorithm}[theorem]{Algorithm}
+%\newtheorem{algorithm}[theorem]{Algorithm}
 \newtheorem{assumption}[theorem]{Assumption}
 \newtheorem{claim}[theorem]{Claim}
 \newtheorem{corollary}[theorem]{Corollary}
@@ -130,7 +134,7 @@ We can obtain the optimal solution $\sigma=(x,y)$ of LP \ref{lp:2} in polynomial
 
 
 %对于SINRmin'与pi'这两个变量，他们的变化幅度是有限的。本文并不关注于SINRmin'有多小或pi'有多大，我们只给出了他们变化幅度的定义如下。
-For the two variables $SINR_{\min}'$ and $p_i'$, they have a limited variation. In this paper, we do not focus on how small $SINR_{\min}'$ is or how large $p_i'$ is; we only give the definition of the magnitude of their changes as follows.
+For the two variables $SINR_{\min}'$ and $p_i'$, they have a limited variation. In this paper, we do not focus on how small $SINR_{\min}'$ is or how large $p_i'$ is; we only give the definition of the magnitude of their variable as follows.
 \begin{eqnarray}
 	{\varepsilon ^p} = \mathop {\max }\limits_{{a_i} \in A} \frac{{{p_i}' - {p_i}}}{{{p_i}}},
 \end{eqnarray}
@@ -144,7 +148,7 @@ For the two variables $SINR_{\min}'$ and $p_i'$, they have a limited variation. 
 
 \section{Rounding}
 % 在本节中，我们针对线性规划2的解sigma，提出了一个有效地舍入算法。该舍入算法由三个部分组成，分别是“确定superior and inferior服务器”、“服务器的聚类”和“选择最终服务器”。最后，我们通过理论分析，证明了信噪比与功率的变化幅度分别为ep与esinr时，该算法的近似比为()。
-In this section, we present an efficient rounding algorithm for the solution $\sigma=(x,y)$ of LP (\ref{lp:2}). The rounding algorithm consists of three parts, namely "determining superior and inferior servers", "clustering of servers" and "selecting the final servers". Finally, we demonstrate through theoretical analysis that the approximation ratio of the algorithm is () when the SINR and the power are varied by ep and esinr, respectively.
+In this section, we present an efficient rounding algorithm for the solution $\sigma=(x,y)$ of LP (\ref{lp:2}). The rounding algorithm consists of three parts, namely "determining superior and inferior servers", "clustering of servers" and "selecting the final servers". Finally, we demonstrate through theoretical analysis that the approximation ratio of the algorithm is () when the SINR and the power are varied by $\varepsilon^p$ and $\varepsilon^{SINR}$, respectively.
 
 
 %%需要定义“rerouting of flow”，后文至关重要的操作。沿用参考文献的说法、或是用最大流问题的定义。
@@ -153,8 +157,85 @@ In this section, we present an efficient rounding algorithm for the solution $\s
 % 在解sigma中，x与y的值都处于0到1之间。我们定义一个常数0<alpha<=1/2，根据alpha与非零yi之间的关系可以对所有服务器分类。当yi=1时，我们称ai为superior服务器，用S表示它们的集合；当0<=yi<=alpha时，我们称ai为inferior服务器，用I表示它们的集合。由于inferior服务器的数量直接关系到rounding算法的结果，因此本小节要对I中的服务器进行裁剪。此外，alpha<yi<1的服务器也在经过处理后，加入到S中。
 The values of $x$ and $y$ are in the range of 0 to 1 in $\sigma=(x,y)$. Given a parameter $0<\alpha\le1/2$, and each server with non-zero $y_i$ can be classified according to the relationship with $\alpha$. When $y_i=1$, we call ai a superior server and denote their set by $S$. When $0< yi\le \alpha$, we call $a_i$ an inferior server and denote their set by $I$.
 
+\begin{figure}[!t]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\begin{algorithm}[H]
+		\caption{Determining Superior and Inferior Servers}
+		\begin{algorithmic}[1]\label{alg:DSIS}
+			\REQUIRE A fraction solution of LP(\ref{lp:2}) $\sigma$, a parameter $\alpha$ and the magnitudes of variable of power and SINR ${\varepsilon ^p}$ and ${\varepsilon ^{SINR}}$.
+			\ENSURE A fraction solution $\overline \sigma = ({\overline x},{\overline y})$ containing only superior and inferior servers.
+			\STATE Initialize $\overline x \leftarrow x$, $\overline y \leftarrow y$.
+			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\overline y}_i} = 1} \right\}$
+			\STATE ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\overline y}_i} \le \alpha} \right\}$.
+			\FORALL{$u_j \in U$}
+			\IF{$\sum\nolimits_{{a_i} \in \mathcal{I}:{{\overline x }_{ij}} > 0} {{{\overline y }_i}}  > \alpha $}
+			\STATE Construct an set $\mathcal{I}_j$ of inferior servers serving $u_j$  such that $\alpha < \sum\nolimits_{{a_i} \in \mathcal{I}_j} {{{\overline y }_i}}  \le 2\alpha $.
+			\STATE $r \leftarrow \mathop {\max }\limits_{{a_i} \in {\mathcal{I}_j}} {r_i}$, $\mathcal{T}\leftarrow\left\{a_i|r_i \le {\varepsilon r}/2, \forall a_i \in \mathcal{I}_j \right\}$.
+			\STATE Divide the set $\mathcal{I}_j \backslash \mathcal{T}$ of servers into $\left\lceil {\log (1/\varepsilon )} \right\rceil $ levels such that each $l$th level server $a_i$ has $2^{l-1}r \varepsilon < r_i \le 2^{l}r \varepsilon $, $0\le l \le \left\lceil {\log (1/\varepsilon )} \right \rceil$.
+			\FOR{$l=0$ to $\left\lceil {\log (1/\varepsilon )} \right \rceil$}
+			% 将以$u_j$为中心的边长为2^{l+2}r\varepsilon$的正方形切割成网格单元，每个网格单元的边长为2^{l-2}r\varepsilon^2$。
+			\STATE Cut the square centered at $u_j$ with side length $2^{l+2}r \varepsilon$ to grid cells, and each grid cell has side length $2^{l-2}r \varepsilon^2$.
+			\STATE For each grid cell that contains at least one server, creating a group $G_l$ consisting of all servers contained in the grid cell.
+			\STATE $\mathcal{G}_l \leftarrow$ all groups in the $l$th level.
+			\FORALL{$G_l\in \mathcal{G}_l$}
+			\STATE $a_m \leftarrow \mathop {\arg \max }\nolimits_{{a_i} \in {G_l}} {r_i}$.
+			\STATE Rerout the flow from each $a_i\in G_l\backslash\left\{a_m\right\}$ to $a_m$.
+			\STATE $\overline{y}_m\leftarrow 1$; $\overline{y}_i \leftarrow 0, \forall a_i \in G_l\backslash\left\{a_m\right\}$.
+			\ENDFOR
+			\ENDFOR
+			\STATE Rerout the flow from $\mathcal{T}$ to server has maximum radii in $\mathcal{I}_j$.
+			\ENDIF
+			\ENDFOR
+			\STATE $\overline{y}_i \leftarrow 1, \forall a_i \in A, \alpha < y_i < 1$.
+			\RETURN $\overline{\sigma}$.
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
+
 \subsection{Clustering of Servers}
 Clustering of Servers
+\begin{figure}[!t]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\begin{algorithm}[H]
+		\caption{Clusting of Servers}
+		\begin{algorithmic}[1]\label{alg:DSIS}
+			\REQUIRE A fraction solution from Alg.\ref{alg:DSIS} $\overline{\sigma}$
+			\ENSURE A fraction solution $\widehat \sigma = ({\widehat x},{\widehat y})$ containing only superior and inferior servers.
+			\STATE Initialize $\widehat x \leftarrow \overline x$, $\widehat y \leftarrow \overline y$.
+			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\widehat y}_i} = 1} \right\}$
+			\STATE ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\widehat y}_i} \le \alpha} \right\}$.
+			\STATE $\mathcal{O} \leftarrow \emptyset, \mathcal{I}' \leftarrow \mathcal{I}$; $C_i \leftarrow \emptyset, \forall a_i \in \mathcal{S}$
+			\WHILE{$\mathcal{I}' \ne \emptyset$}
+			\FORALL{$a_i \in \mathcal{S}$}
+			\FORALL{$a_t \in \mathcal{I}'$}
+			\IF{$a_t$ intersects $a_i$ and $AC_i \ge \sum\nolimits_{{u_j} \in U} {{{\widehat x}_{tj}}} $}
+			\STATE Rerout the flow from $a_t$ to $a_i$, and $C_i \leftarrow C_i \cup \left\{a_t\right\}$.
+			\ENDIF
+			\ENDFOR
+			\ENDFOR
+			\IF{$\mathcal{I}' \ne \emptyset$}
+			\STATE $A_i \leftarrow \left\{u_j| \widehat{x}_{ij} > 0, \forall u_j \in U \right\}$, $\forall a_i \in \mathcal{I}'$.
+			\STATE $k_i \leftarrow \min \left\{BW_i, \sum\nolimits_{{u_j} \in A_i} {{BR_j}} \right\}$.
+			\STATE $a_t \leftarrow \arg\max_{a_i \in \mathcal{I}'}{k_i}$, $\mathcal{O} \leftarrow  \mathcal{O} \cup \left\{a_t\right\}$.
+			\IF{$k_t \equiv \sum\nolimits_{{u_j} \in A_t} {{BR_t}} \le BW_t$}
+			\STATE
+			\ENDIF
+			\IF{$k_t \equiv BW_t < \sum\nolimits_{{u_j} \in A_t} {{BR_t}} $ and $k_t \ge 2BR_t^{\min}$}
+			\STATE
+			\ENDIF
+			\IF{$k_t \equiv BW_t < \sum\nolimits_{{u_j} \in A_t} {{BR_t}} $ and $BR_t^{\min} \le k_t < 2BR_t^{\min}$}
+			\STATE
+			\ENDIF
+			\ENDIF
+			\ENDWHILE
+			\STATE $\overline{y}_i \leftarrow 1, \forall a_i \in A, \alpha < y_i < 1$.
+			\RETURN $\overline{\sigma}$.
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
+
 
 \subsection{Selecting the Final Servers}
 Selecting the Final Servers
