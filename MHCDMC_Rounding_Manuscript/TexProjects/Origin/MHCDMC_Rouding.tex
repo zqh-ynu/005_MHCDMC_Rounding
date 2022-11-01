@@ -150,6 +150,23 @@ For the two variables $SINR_{\min}'$ and $p_i'$, they have a limited variation. 
 % 在本节中，我们针对线性规划2的解sigma，提出了一个有效地舍入算法。该舍入算法由三个部分组成，分别是“确定superior and inferior服务器”、“服务器的聚类”和“选择最终服务器”。最后，我们通过理论分析，证明了信噪比与功率的变化幅度分别为ep与esinr时，该算法的近似比为()。
 In this section, we present an efficient rounding algorithm for the solution $\sigma=(x,y)$ of LP (\ref{lp:2}). The rounding algorithm consists of three parts, namely "determining superior and inferior servers", "clustering of servers" and "selecting the final servers". Finally, we demonstrate through theoretical analysis that the approximation ratio of the algorithm is () when the SINR and the power are varied by $\varepsilon^p$ and $\varepsilon^{SINR}$, respectively.
 
+\begin{figure}[!t]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\begin{algorithm}[H]
+		\caption{Hierarchical Rounding}
+		\begin{algorithmic}[1]\label{alg:HR}
+			% 用户的集合，服务器的集合，用户的需求，服务器的容量，用户和服务器的位置
+			\REQUIRE $(U, A, )$. 
+			\ENSURE A set of selected MBS $A^*$.
+			\STATE $\sigma \leftarrow $ the solution of LP(\ref{lp:2}).
+			\STATE $\overline{\sigma} \leftarrow DSIS(\sigma)$
+			\STATE $\widehat{\sigma}, \mathcal{C} \leftarrow CoS(\overline{\sigma})$.
+			\STATE $A^* \leftarrow SFS(\widehat{\sigma}, \mathcal{C})$.
+			\RETURN $\overline{\sigma}$.
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
 
 %%需要定义“rerouting of flow”，后文至关重要的操作。沿用参考文献的说法、或是用最大流问题的定义。
 
@@ -161,13 +178,12 @@ The values of $x$ and $y$ are in the range of 0 to 1 in $\sigma=(x,y)$. Given a 
 	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 	\renewcommand{\algorithmicensure}{\textbf{Output:}}
 	\begin{algorithm}[H]
-		\caption{Determining Superior and Inferior Servers}
+		\caption{Determining Superior and Inferior Servers (DSIS)}
 		\begin{algorithmic}[1]\label{alg:DSIS}
 			\REQUIRE A fraction solution of LP(\ref{lp:2}) $\sigma$, a parameter $\alpha$ and the magnitudes of variable of power and SINR ${\varepsilon ^p}$ and ${\varepsilon ^{SINR}}$.
 			\ENSURE A fraction solution $\overline \sigma = ({\overline x},{\overline y})$ containing only superior and inferior servers.
 			\STATE Initialize $\overline x \leftarrow x$, $\overline y \leftarrow y$.
-			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\overline y}_i} = 1} \right\}$
-			\STATE ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\overline y}_i} \le \alpha} \right\}$.
+			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\overline y}_i} = 1} \right\}$, ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\overline y}_i} \le \alpha} \right\}$.
 			\FORALL{$u_j \in U$}
 			\IF{$\sum\nolimits_{{a_i} \in \mathcal{I}:{{\overline x }_{ij}} > 0} {{{\overline y }_i}}  > \alpha $}
 			\STATE Construct an set $\mathcal{I}_j$ of inferior servers serving $u_j$  such that $\alpha < \sum\nolimits_{{a_i} \in \mathcal{I}_j} {{{\overline y }_i}}  \le 2\alpha $.
@@ -179,12 +195,11 @@ The values of $x$ and $y$ are in the range of 0 to 1 in $\sigma=(x,y)$. Given a 
 			\STATE For each grid cell that contains at least one server, creating a group $G_l$ consisting of all servers contained in the grid cell.
 			\STATE $\mathcal{G}_l \leftarrow$ all groups in the $l$th level.
 			\FORALL{$G_l\in \mathcal{G}_l$}
-			\STATE $a_m \leftarrow \mathop {\arg \max }\nolimits_{{a_i} \in {G_l}} {r_i}$.
-			\STATE Rerout the flow from each $a_i\in G_l\backslash\left\{a_m\right\}$ to $a_m$.
+			\STATE $a_m \leftarrow \mathop {\arg \max }\nolimits_{{a_i} \in {G_l}} {r_i}$, reroute the flow from each $a_i\in G_l\backslash\left\{a_m\right\}$ to $a_m$.
 			\STATE $\overline{y}_m\leftarrow 1$; $\overline{y}_i \leftarrow 0, \forall a_i \in G_l\backslash\left\{a_m\right\}$.
 			\ENDFOR
 			\ENDFOR
-			\STATE Rerout the flow from $\mathcal{T}$ to server has maximum radii in $\mathcal{I}_j$.
+			\STATE Reroute the flow from $\mathcal{T}$ to server has maximum radii in $\mathcal{I}_j$.
 			\ENDIF
 			\ENDFOR
 			\STATE $\overline{y}_i \leftarrow 1, \forall a_i \in A, \alpha < y_i < 1$.
@@ -195,43 +210,85 @@ The values of $x$ and $y$ are in the range of 0 to 1 in $\sigma=(x,y)$. Given a 
 
 \subsection{Clustering of Servers}
 Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
+
+
+Clustering of Servers
 \begin{figure}[!t]
 	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 	\renewcommand{\algorithmicensure}{\textbf{Output:}}
 	\begin{algorithm}[H]
 		\caption{Clusting of Servers}
-		\begin{algorithmic}[1]\label{alg:DSIS}
+		\begin{algorithmic}[1]\label{alg:CoS}
 			\REQUIRE A fraction solution from Alg.\ref{alg:DSIS} $\overline{\sigma}$
-			\ENSURE A fraction solution $\widehat \sigma = ({\widehat x},{\widehat y})$ containing only superior and inferior servers.
-			\STATE Initialize $\widehat x \leftarrow \overline x$, $\widehat y \leftarrow \overline y$.
-			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\widehat y}_i} = 1} \right\}$
-			\STATE ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\widehat y}_i} \le \alpha} \right\}$.
-			\STATE $\mathcal{O} \leftarrow \emptyset, \mathcal{I}' \leftarrow \mathcal{I}$; $C_i \leftarrow \emptyset, \forall a_i \in \mathcal{S}$
+			\ENSURE A fraction solution $\widehat \sigma = ({\widehat x},{\widehat y})$, a set of clusters $\mathcal{C}$.
+			\STATE Initialize $\widehat x \leftarrow \overline x$, $\widehat y \leftarrow \overline y$, $\mathcal{O} \leftarrow \emptyset$.
+			\STATE ${\mathcal{S}'} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\widehat y}_i} = 1} \right\}$; ${\mathcal{I}'} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\widehat y}_i} \le \alpha} \right\}$.
+			\STATE  $C_i \leftarrow \left\{a_i\right\}, \forall a_i \in \mathcal{S}'$; $\mathcal{C} \leftarrow \left\{C_i| \forall a_i\in \mathcal{S}'\right\}$
 			\WHILE{$\mathcal{I}' \ne \emptyset$}
-			\FORALL{$a_i \in \mathcal{S}$}
-			\FORALL{$a_t \in \mathcal{I}'$}
-			\IF{$a_t$ intersects $a_i$ and $AC_i \ge \sum\nolimits_{{u_j} \in U} {{{\widehat x}_{tj}}} $}
-			\STATE Rerout the flow from $a_t$ to $a_i$, and $C_i \leftarrow C_i \cup \left\{a_t\right\}$.
+			\FORALL{$a_i \in \mathcal{S}'$, $a_t \in \mathcal{I}'$}
+			\IF{$a_t$ intersects $a_i$ and $RB_i \ge \sum\nolimits_{{u_j} \in U} {{{\widehat x}_{tj}BR_j}} $}
+			\STATE $C_i \leftarrow C_i \cup \left\{a_t\right\}$; $\mathcal{I}' \leftarrow \mathcal{I}' \backslash \left\{a_t\right\}$.
 			\ENDIF
-			\ENDFOR
 			\ENDFOR
 			\IF{$\mathcal{I}' \ne \emptyset$}
 			\STATE $A_i \leftarrow \left\{u_j| \widehat{x}_{ij} > 0, \forall u_j \in U \right\}$, $\forall a_i \in \mathcal{I}'$.
-			\STATE $k_i \leftarrow \min \left\{BW_i, \sum\nolimits_{{u_j} \in A_i} {{BR_j}} \right\}$.
-			\STATE $a_t \leftarrow \arg\max_{a_i \in \mathcal{I}'}{k_i}$, $\mathcal{O} \leftarrow  \mathcal{O} \cup \left\{a_t\right\}$.
+			\STATE $k_i \leftarrow \min \left\{BW_i, \sum\nolimits_{{u_j} \in A_i} {{BR_j}} \right\}$; $a_t \leftarrow \arg\max_{a_i \in \mathcal{I}'}{k_i}$; $\mathcal{O} \leftarrow  \mathcal{O} \cup \left\{a_t\right\}$; $\mathcal{I}' \leftarrow \mathcal{I}' \backslash \left\{a_t\right\}$.
 			\IF{$k_t \equiv \sum\nolimits_{{u_j} \in A_t} {{BR_t}} \le BW_t$}
-			\STATE
+			\STATE For each $u_j \in A_i$, reroute the flow from $A \backslash \mathcal{O}$ to $a_t$.
+			\STATE Update $RB_t$ and $RB_i, \forall a_i \in \mathcal{S}'$.
 			\ENDIF
 			\IF{$k_t \equiv BW_t < \sum\nolimits_{{u_j} \in A_t} {{BR_t}} $ and $k_t \ge 2BR_t^{\min}$}
-			\STATE
+			\WHILE{Exists $ u_j \in A_t : (1-x_{tj})BR_j \le RB_t$}
+			\STATE $u_k \leftarrow \arg\min_{u_j \in A_t}\left[RB_t - (1-x_{tj})BR_j\right]$, reroute the flow of $u_k$ from $A \backslash \mathcal{O}$ to $a_t$.
+			\ENDWHILE
 			\ENDIF
 			\IF{$k_t \equiv BW_t < \sum\nolimits_{{u_j} \in A_t} {{BR_t}} $ and $BR_t^{\min} \le k_t < 2BR_t^{\min}$}
-			\STATE
+			\STATE $u_k \leftarrow \arg\max_{u_j \in A_t : BR_j \le BW_t}BR_j$, reroute the flow of $u_k$ from $\mathcal{I}'$ to $a_t$.
+			\STATE $f \leftarrow \sum\nolimits_{{a_i} \in \mathcal{O}} {{{\widehat x}_{ik}}} $, reroute the $\min \left\{RB_t/BR_j, (1-f)\right\}$ amount of flow from $\mathcal{C}$ to $a_t$.
 			\ENDIF
 			\ENDIF
 			\ENDWHILE
-			\STATE $\overline{y}_i \leftarrow 1, \forall a_i \in A, \alpha < y_i < 1$.
-			\RETURN $\overline{\sigma}$.
+			\STATE $\widehat y_i \leftarrow 1$; $ C_i \leftarrow \left\{a_i\right\}, \forall a_i \in \mathcal{O} $; $\mathcal{C} \leftarrow \mathcal{C} \cup \left\{C_i|\forall a_i \in \mathcal{O} \right\}$. 
+			\RETURN $\widehat{\sigma}$, $\mathcal{C}$.
 		\end{algorithmic}
 	\end{algorithm}
 \end{figure}
@@ -239,6 +296,45 @@ Clustering of Servers
 
 \subsection{Selecting the Final Servers}
 Selecting the Final Servers
+\begin{figure}[!t]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\begin{algorithm}[H]
+		\caption{Selecting the Final Servers}
+		\begin{algorithmic}[1]\label{alg:SFS}
+			\REQUIRE A fraction solution from Alg.\ref{alg:CoS} $\widehat{\sigma}$, a set of clusters $\mathcal{C}$.
+			\ENSURE Final solution $\widetilde \sigma $.
+			\STATE Initialize $\widetilde x \leftarrow \widehat x$, $\widetilde y \leftarrow \widehat y$.
+			\STATE ${\mathcal{S}'} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\widetilde y}_i} = 1} \right\}$; ${\mathcal{I}'} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\widetilde y}_i} \le \alpha} \right\}$.
+			\FORALL{$a_h \in \mathcal{S}'$}
+			\IF{$C_h \equiv \left\{a_h\right\}$}
+			\STATE $\widetilde{y}_h \leftarrow 1$.
+			\ELSE
+			%\STATE **che xiao alg.\ref{alg:CoS} zhong chong yin liu
+			\STATE $\mathcal{A}_1 \leftarrow \left\{a_i | r_i > r_h, \forall a_i \in C_h\right\}$; $\mathcal{A}_2 \leftarrow C_h \backslash \mathcal{A}_1$.
+			\STATE $r_1 \leftarrow \max_{a_i \in \mathcal{A}_1}r_i$; $a_1 \leftarrow \arg\max_{a_i \in \mathcal{A}_1}r_i$.
+			\STATE $\mathcal{T}_1 \leftarrow \left\{ a_i | r_i \le \varepsilon r_1 / 4, \forall a_i \in \mathcal{A}_1\right\}$; $\mathcal{T}_2 \leftarrow \left\{ a_i | r_i \le \varepsilon r_h / 2, \forall a_i \in \mathcal{A}_2 \right\}$.
+			\STATE Using the hierarchical technique in alg.\ref{alg:DSIS}, $\mathcal{A}_1 \backslash \mathcal{T}_1$ is divided into $O(\varepsilon^{-2}\log_2{1/\varepsilon})$ groups, and the flow from each group is reroute to the leader server.
+			\STATE Reroute the flow from $\mathcal{T}_1$ to $a_1$.
+			\STATE Cut the square containing $\mathcal{A}_2 \backslash \mathcal{T}_2$ with side length $O(r_h)$ to grid cells, and each grid cell has side length $\varepsilon^2 r_h / 4$.
+			\STATE For each grid cell that contains at least one server, creating a group $G$ consisting of all servers contained in the grid cell.
+			\STATE $\mathcal{G}_2 \leftarrow$ all groups from $\mathcal{A}_2 \backslash \mathcal{T}_2$. 
+			\FORALL{$G \in \mathcal{G}_2$}
+			\STATE Order the servers in $G$ by non-increasing radii.
+			\STATE $G'\leftarrow$ the first $\left\lceil \sum\nolimits_{{a_i} \in G} {{{ y}_{i}}}  \right \rceil$ servers in this ordering.
+			\STATE Reroute the flow from $G\backslash G'$ to $G'$.
+			\ENDFOR
+			\STATE Reroute the flow from $\mathcal{T}_2$ to $a_h$.
+			\ENDIF
+			\ENDFOR
+			
+			
+			\STATE $\widehat y_i \leftarrow 1, C_i \leftarrow \left\{a_i\right\}, \forall a_i \in \mathcal{O} $; 
+			\RETURN $\widehat{\sigma}$, $\mathcal{C}$.
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
+
 
 \section{Experimental Results}
 
