@@ -70,6 +70,23 @@ After a major natural disaster, the ground-based communication facilities are us
 % 原创
 %%为了保障人民群众的生命财产安全，加快灾后重建恢复工作，我们需要尽快为用户提供通讯保障。根据实际的通信需求，倚靠人口分布、受灾情况等信息选定一些潜在的可选无人机部署位置。在通信需求的约束下选择最少的无人机数量恢复该片区域的通信网络是一个至关重要的问题。由于大型无人机相对于较小的无人机拥有更大的能源储备，较大的无人机能用更高的功率发射信号，并且能拥有更大的带宽容量来获得更好的信号覆盖性能。因此在本文中我们假设拥有更大信号发射功率的无人机基站，其带宽容量更大。
 In order to protect people's life and property and speed up the post-disaster reconstruction and recovery work, we need to provide communication security for users as soon as possible. According to the actual communication demand, some potential optional UAV deployment locations are selected by relying on information such as population distribution and disaster situation. Selecting the minimum number of UAVs to restore the communication network in that area under the constraints of communication needs is a critical issue. Since larger UAVs have larger energy reserves compared to smaller UAVs, larger UAVs can transmit signals with higher power and have greater bandwidth capacity to obtain better signal coverage performance. Therefore, in this paper we assume that the UAV base station with higher signal transmitting power has a larger bandwidth capacity.
+
+
+% 本文贡献
+% 1. 针对无人机基站部署问题中用户需求为实数时，对Bandyapadhyay提出的算法进行了改进，并分析了在无线通信模型中，SINR与功率变化对$\varepsilon$的关系。 
+% 2. 我们提出了一种基于重心的分级位置预设算法，对无人机位置进行预设。
+% 3. 由于部署无人机的数量及位置是未知的，因此本文对每个用户与无人机之间的SINR进行了预设。经过多次求解，能够很大程度上降低预设值与真实值之间的误差。我们评估了预设SINR与真实SINR之间的差距，以此说明无人机基站部署点位的准确性。
+
+contributions:
+\begin{itemize}
+	
+	\item We improved the algorithm proposed by Bandyapadhyay in \cite{bandyapadhyay_capacitated_2020} when the require of user is real.We also analyze the relationship between SINR and power variation on $\varepsilon$ in the wireless communication model is analyzed.
+	
+	\item We propose a center-of-gravity-based  hierarchical position presetting algorithm to preset the UAV position.
+	
+	\item Since the number and location of deployed UAVs are unknown, the SINR between each user and UAV is preset in this paper. After multiple solving, the gap between the preset value and the real value can be reduced significantly. We evaluated the gap between the pre-set SINR and the real SINR as an indication of the accuracy of the UAV base station deployment sites.
+\end{itemize}
+
 \section{Related work}
  related work
 \section{System model}
@@ -354,11 +371,7 @@ supported in part by the National Natural Science Foundation of
 China [Nos. 61662088, 61762091], the Program
 for Excellent Young Talents, Yunnan University, and IRTSTYN.
 
-\begin{thebibliography}{}
-
-
-
-
-\end{thebibliography}
+\bibliographystyle{ieeetr}
+\bibliography{ref}
 
 \end{document}
