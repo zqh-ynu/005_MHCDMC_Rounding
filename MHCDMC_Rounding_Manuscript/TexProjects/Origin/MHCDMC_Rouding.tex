@@ -55,37 +55,37 @@ abstract
 scheduling; approximation algorithm; bag-of-tasks
 \end{abstract}
 \newpage
-\section{Introduction}
-%% 中文测试 Chinese Test
-
-%%由于无人机(unmanned aerial vehicles, UAVs)的可操作性性与不断增长的可负担性，UAV在无线通信系统中有着许多的潜在应用。尤其在一些例如战场或受灾现场等没有通信基础设施覆盖的区域，无人机赋能的移动基站(mobile base stations, MBSs)可以很容易地部署在这些区域并提供无线通信连接。与传统的地面基站相比(base stations, BSs)(包含一些车载基站)，为了达到信号覆盖某片区域中位置已知的用户，UAV赋能的MBSs可以部署在任何位置。
-
-% 摘抄自Placement Optimization of UAV-Mounted Mobile Base Stations, Introduction第一段
-With their maneuverability and increasing affordability, unmanned aerial vehicles (UAVs) have many potential applications in wireless communication systems [1]. In particular, UAV-mounted mobile base stations (MBSs) can be deployed to provide wireless connectivity in areas without infrastructure coverage such as battlefields or disaster scenes. Unlike terrestrial base stations (BSs), even those mounted on ground vehicles, UAV-mounted MBSs can be deployed in any location and move along any trajectory constrained only by their aeronautical characteristics, in order to cover the ground terminals (GTs) in a given area based on their known locations.
-
-%% 摘抄自“基于多智能体强化学习的大规模灾后用户分布式覆盖优化” 第一段
-%在发生重大自然灾害后，地面的基础通信设施通常会遭到毁坏而产生通信中断，重要的通信信息被阻绝，危及受灾群众的生命安全，加剧灾后救援的难度。无人机因为具有快速部署等优点，能够通过装备应急基站提供有效的空地视距链路覆盖受灾地区，在应急通信领域具有广泛的应用前景[1]。
-After a major natural disaster, the ground-based communication facilities are usually destroyed and communication is interrupted, and important communication information is blocked, which endangers the lives of the affected people and aggravates the difficulty of post-disaster rescue. UAVs have wide application prospects in the field of emergency communication because of their advantages such as rapid deployment and the ability to provide effective air-ground line-of-sight links to cover the affected areas by equipping emergency base stations [1].
-
-% 原创
-%%为了保障人民群众的生命财产安全，加快灾后重建恢复工作，我们需要尽快为用户提供通讯保障。根据实际的通信需求，倚靠人口分布、受灾情况等信息选定一些潜在的可选无人机部署位置。在通信需求的约束下选择最少的无人机数量恢复该片区域的通信网络是一个至关重要的问题。由于大型无人机相对于较小的无人机拥有更大的能源储备，较大的无人机能用更高的功率发射信号，并且能拥有更大的带宽容量来获得更好的信号覆盖性能。因此在本文中我们假设拥有更大信号发射功率的无人机基站，其带宽容量更大。
-In order to protect people's life and property and speed up the post-disaster reconstruction and recovery work, we need to provide communication security for users as soon as possible. According to the actual communication demand, some potential optional UAV deployment locations are selected by relying on information such as population distribution and disaster situation. Selecting the minimum number of UAVs to restore the communication network in that area under the constraints of communication needs is a critical issue. Since larger UAVs have larger energy reserves compared to smaller UAVs, larger UAVs can transmit signals with higher power and have greater bandwidth capacity to obtain better signal coverage performance. Therefore, in this paper we assume that the UAV base station with higher signal transmitting power has a larger bandwidth capacity.
-
-
-% 本文贡献
-% 1. 针对无人机基站部署问题中用户需求为实数时，对Bandyapadhyay提出的算法进行了改进，并分析了在无线通信模型中，SINR与功率变化对$\varepsilon$的关系。 
-% 2. 我们提出了一种基于重心的分级位置预设算法，对无人机位置进行预设。
-% 3. 由于部署无人机的数量及位置是未知的，因此本文对每个用户与无人机之间的SINR进行了预设。经过多次求解，能够很大程度上降低预设值与真实值之间的误差。我们评估了预设SINR与真实SINR之间的差距，以此说明无人机基站部署点位的准确性。
-
-contributions:
-\begin{itemize}
+	\section{Introduction}
+	%% 中文测试 Chinese Test
 	
-	\item We improved the algorithm proposed by Bandyapadhyay in \cite{bandyapadhyay_capacitated_2020} when the require of user is real.We also analyze the relationship between SINR and power variation on $\varepsilon$ in the wireless communication model is analyzed.
+	%%由于无人机(unmanned aerial vehicles, UAVs)的可操作性性与不断增长的可负担性，UAV在无线通信系统中有着许多的潜在应用。尤其在一些例如战场或受灾现场等没有通信基础设施覆盖的区域，无人机赋能的移动基站(mobile base stations, MBSs)可以很容易地部署在这些区域并提供无线通信连接。与传统的地面基站相比(base stations, BSs)(包含一些车载基站)，为了达到信号覆盖某片区域中位置已知的用户，UAV赋能的MBSs可以部署在任何位置。
 	
-	\item We propose a center-of-gravity-based  hierarchical position presetting algorithm to preset the UAV position.
+	% 摘抄自Placement Optimization of UAV-Mounted Mobile Base Stations, Introduction第一段
+	With their maneuverability and increasing affordability, unmanned aerial vehicles (UAVs) have many potential applications in wireless communication systems [1]. In particular, UAV-mounted mobile base stations (MBSs) can be deployed to provide wireless connectivity in areas without infrastructure coverage such as battlefields or disaster scenes. Unlike terrestrial base stations (BSs), even those mounted on ground vehicles, UAV-mounted MBSs can be deployed in any location and move along any trajectory constrained only by their aeronautical characteristics, in order to cover the ground terminals (GTs) in a given area based on their known locations.
 	
-	\item Since the number and location of deployed UAVs are unknown, the SINR between each user and UAV is preset in this paper. After multiple solving, the gap between the preset value and the real value can be reduced significantly. We evaluated the gap between the pre-set SINR and the real SINR as an indication of the accuracy of the UAV base station deployment sites.
-\end{itemize}
+	%% 摘抄自“基于多智能体强化学习的大规模灾后用户分布式覆盖优化” 第一段
+	%在发生重大自然灾害后，地面的基础通信设施通常会遭到毁坏而产生通信中断，重要的通信信息被阻绝，危及受灾群众的生命安全，加剧灾后救援的难度。无人机因为具有快速部署等优点，能够通过装备应急基站提供有效的空地视距链路覆盖受灾地区，在应急通信领域具有广泛的应用前景[1]。
+	After a major natural disaster, the ground-based communication facilities are usually destroyed and communication is interrupted, and important communication information is blocked, which endangers the lives of the affected people and aggravates the difficulty of post-disaster rescue. UAVs have wide application prospects in the field of emergency communication because of their advantages such as rapid deployment and the ability to provide effective air-ground line-of-sight links to cover the affected areas by equipping emergency base stations [1].
+	
+	% 原创
+	%%为了保障人民群众的生命财产安全，加快灾后重建恢复工作，我们需要尽快为用户提供通讯保障。根据实际的通信需求，倚靠人口分布、受灾情况等信息选定一些潜在的可选无人机部署位置。在通信需求的约束下选择最少的无人机数量恢复该片区域的通信网络是一个至关重要的问题。由于大型无人机相对于较小的无人机拥有更大的能源储备，较大的无人机能用更高的功率发射信号，并且能拥有更大的带宽容量来获得更好的信号覆盖性能。因此在本文中我们假设拥有更大信号发射功率的无人机基站，其带宽容量更大。
+	In order to protect people's life and property and speed up the post-disaster reconstruction and recovery work, we need to provide communication security for users as soon as possible. According to the actual communication demand, some potential optional UAV deployment locations are selected by relying on information such as population distribution and disaster situation. Selecting the minimum number of UAVs to restore the communication network in that area under the constraints of communication needs is a critical issue. Since larger UAVs have larger energy reserves compared to smaller UAVs, larger UAVs can transmit signals with higher power and have greater bandwidth capacity to obtain better signal coverage performance. Therefore, in this paper we assume that the UAV base station with higher signal transmitting power has a larger bandwidth capacity.
+	
+	
+	% 本文贡献
+	% 1. 针对无人机基站部署问题中用户需求为实数时，对Bandyapadhyay提出的算法进行了改进，并分析了在无线通信模型中，SINR与功率变化对$\varepsilon$的关系。 
+	% 2. 我们提出了一种基于重心的分级位置预设算法，对无人机位置进行预设。
+	% 3. 由于部署无人机的数量及位置是未知的，因此本文对每个用户与无人机之间的SINR进行了预设。经过多次求解，能够很大程度上降低预设值与真实值之间的误差。我们评估了预设SINR与真实SINR之间的差距，以此说明无人机基站部署点位的准确性。
+	
+	contributions:
+	\begin{itemize}
+		
+		\item We improved the algorithm proposed by Bandyapadhyay in \cite{bandyapadhyay_capacitated_2020} when the require of user is real.We also analyze the relationship between SINR and power variation on $\varepsilon$ in the wireless communication model is analyzed.
+		
+		\item We propose a center-of-gravity-based  hierarchical position presetting algorithm to preset the UAV position.
+		
+		\item Since the number and location of deployed UAVs are unknown, the SINR between each user and UAV is preset in this paper. After multiple solving, the gap between the preset value and the real value can be reduced significantly. We evaluated the gap between the pre-set SINR and the real SINR as an indication of the accuracy of the UAV base station deployment sites.
+	\end{itemize}
 
 \section{Related work}
  related work
@@ -93,7 +93,15 @@ contributions:
 %%在某受灾区域中，我们预设了m个位点及可能部署于该位点的MBS。虽然在每个位置部署都MBS能够满足所有用户的通信需求，但这是十分低效且不切实际的。我们需要尽快选择其中尽可能少的位点部署对应的MBS，尽快为n个用户恢复通讯服务。我们分别用U与A表示用户与MBS位点的集合。对于每个用户uj，都有带宽需求BRj。MBS ai的信号发射功率为pi，且带宽资源有限，为BWi。
 %对于为了能在保证所有用户的通信信干噪比不小于SINR_min的前提下，尽快为用户恢复通讯，我们需要选择尽可能少的部署MBSs。我们引入决策变量xij与yi。用yi表示是否选择ai作为最终的MBS部署策略，当ai=1表示选择MBS ai。用xij表示是否令ai为uj分配带宽资源提供服务，当xij=1时表明uj被ai服务。
 In a disaster area, we have pre-planned $m$ loci and possible MBSs to be deployed in. Although deploying MBSs in each location can satisfy the communication needs of all users, it is very inefficient and impractical. We need to select as few loci as possible to deploy the corresponding MBSs as soon as possible to restore communication services for $n$ users. We denote the set of users and MBS loci by $U$ and $A$, respectively. For each user $u_j \in U$, there is a bandwidth requirement $BR_j$. The signal transmit power of MBS $a_i \in A$ is $p_i$, and the bandwidth resource is limited to $BW_i$. 
-In order to resume communication for users as soon as possible while ensuring that the communication signal-to-noise ratio of all users is not less than $SINR_{min}$, we need to select as few deployed MBSs as possible. we introduce decision variables $x_{ij}$ and $y_i$. $y_i$ denotes whether to choose $a_i$ as the final MBS deployment policy, and when $y_i=1$ indicates that MBS $a_i$ is chosen. $x_{ij}$ is used to indicate whether to make $a_i$ allocate bandwidth resources for $u_j$ to provide services, and when $x_{ij}=1$ indicates that $u_j$ is served by $a_i$.
+In order to resume communication for all users as soon as possible while ensuring that the communication signal-to-noise ratio of all users is not less than $SINR_{min}$, we need to select as few deployed MBSs as possible.
+% 我们将该问题定义为最小基数信号覆盖问题。
+We define the problem as a minimum metric capacitated signal coverage (MMCSC) problem.
+We introduce decision variables $x_{ij}$ and $y_i$. $y_i$ denotes whether to choose $a_i$ as the final MBS deployment policy, and when $y_i=1$ indicates that MBS $a_i$ is chosen. $x_{ij}$ is used to indicate whether to make $a_i$ allocate bandwidth resources for $u_j$ to provide services, and when $x_{ij}=1$ indicates that $u_j$ is served by $a_i$.
+
+
+% 我们可以把MMCSC问题看做一个容量限制的二分图覆盖问题。对于二分图G=(A,U,E)，A与U是二分图的两个顶点集合，E={e_ij|SINR_ij>=SINR_min, a_i \in A, u_j \in U}。每个顶点a_i \in A 有容量BW_i，定点u_j\in U 有需求BR_j。容量限制的二分图覆盖问题，就是选择一个集合A'\subset A, 使得A'中顶点在容量有限的约束下，覆盖所有U中的顶点。在该问题中，每个顶点a_i \in A就像是水流的源头，每个顶点u_j \in U有水流需求。a_i的水流只能流向与之相连的u_j。
+We can regard MMCSC problem as a capacitated bipartite graph cover (CBGC) problem. For a bipartite graph $G=(A,U,E)$, where $A$ and $U$ are the two sets of vertex, $E = \left\{ e_{ij} | SINR_{ij} \ge SINR_{\min}, a_i \in A, u_j \in U\right\}$.The capacity of each vertex $a_i \in A$ is $BW_i$, the request of each vertex $u_j \in U$ is $BR_j$. The definition of CBGC problem is that choosing a subset $A' \subseteq A$ which is capacitated to cover all vertex in $U$. In this problem, each vertex $a_i \in A$ is like the source of \emph{flow}, and each vertex $u_j \in U$ has flow demand. The flow of $a_i$ can only flow to the connected $u_j$ in $G$. 
+
 
 
 %%无人机赋能的MBS与用户之间的通信采用sub-6GHz频段的空地对接通信链接，其中视距无线传输(Line of Sight, LoS)占主导地位。a与u之间的路径损耗可以表示为
@@ -164,9 +172,24 @@ For the two variables $SINR_{\min}'$ and $p_i'$, they have a limited variation. 
 
 
 \section{Rounding}
-% 在本节中，我们针对线性规划2的解sigma，提出了一个有效地舍入算法。该舍入算法由三个部分组成，分别是“确定superior and inferior服务器”、“服务器的聚类”和“选择最终服务器”。最后，我们通过理论分析，证明了信噪比与功率的变化幅度分别为ep与esinr时，该算法的近似比为()。
-In this section, we present an efficient rounding algorithm for the solution $\sigma=(x,y)$ of LP (\ref{lp:2}). The rounding algorithm consists of three parts, namely "determining superior and inferior servers", "clustering of servers" and "selecting the final servers". Finally, we demonstrate through theoretical analysis that the approximation ratio of the algorithm is () when the SINR and the power are varied by $\varepsilon^p$ and $\varepsilon^{SINR}$, respectively.
+% 在本节中，我们针对线性规划2的解sigma，提出了一个有效地舍入算法。该舍入算法由三个部分组成，分别是“确定superior and inferior服务器”、 “服务器的聚类”和“选择最终服务器”。通过算法1，我们最终能得到被选择的服务器的集合A。最后，我们通过理论分析，证明了信噪比与功率的变化幅度分别为ep与esinr时，该算法的近似比为()。
+In this section, we present an efficient rounding algorithm for the solution $\sigma=(x,y)$ of LP (\ref{lp:2}). The rounding algorithm consists of three parts, namely "determining superior and inferior servers", "clustering of servers" and "selecting the final servers". With Alg.\ref{alg:HR}, we can finally get the set of the selected servers $A^*$. Finally, we demonstrate through theoretical analysis that the approximation ratio of the algorithm is () when the SINR and the power are varied by $\varepsilon^p$ and $\varepsilon^{SINR}$, respectively.
 
+
+% 在介绍上述算法之前，我们在这里给出几点重要的定义。
+% 定义一：superior 服务器和 inferior 服务器
+% 定义二：服务器的重引流
+Before presenting the above algorithm, we give here two important definitions. 
+
+\begin{definition}
+	For a fraction solution $\sigma=(x,y)$ of LP.(\ref{lp:2}),  given a parameter $0<\alpha\le1/2$, and each server with non-zero $y_i$ can be classified according to the relationship with $\alpha$. If $y_i=1$, we call $a_i$ a superior server and denote their set by $\mathcal{S}$. If $0< yi\le \alpha$, we call $a_i$ an inferior server and denote their set by $\mathcal{I}$.
+\end{definition}
+
+\begin{definition}
+	% 
+	Reroute the flow from a subset of servers $A' \subseteq A$ to a server $a_k \notin A'$, it means that the users $U' \subseteq U$ served by $A'$ will be allocated to $a_k$ to serve. A new solution $(\overline x, \overline y)$ will get from current solution $(x, y)$ as flowing way: (1) $\overline{x}_{kj} = {x}_{kj} + \sum\nolimits_{{a_i} \in A'} {{{x}_{ij}}}, \forall u_j \in U' $; (2) $\overline x_{ij} = 0, \forall u_j\in U', \forall a_i \in A'$.
+	
+\end{definition}
 \begin{figure}[!t]
 	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
 	\renewcommand{\algorithmicensure}{\textbf{Output:}}
@@ -180,7 +203,7 @@ In this section, we present an efficient rounding algorithm for the solution $\s
 			\STATE $\overline{\sigma} \leftarrow DSIS(\sigma)$
 			\STATE $\widehat{\sigma}, \mathcal{C} \leftarrow CoS(\overline{\sigma})$.
 			\STATE $A^* \leftarrow SFS(\widehat{\sigma}, \mathcal{C})$.
-			\RETURN $\overline{\sigma}$.
+			\RETURN $A^*$.
 		\end{algorithmic}
 	\end{algorithm}
 \end{figure}
@@ -189,7 +212,7 @@ In this section, we present an efficient rounding algorithm for the solution $\s
 
 \subsection{Determining Superior and Inferior Servers}
 % 在解sigma中，x与y的值都处于0到1之间。我们定义一个常数0<alpha<=1/2，根据alpha与非零yi之间的关系可以对所有服务器分类。当yi=1时，我们称ai为superior服务器，用S表示它们的集合；当0<=yi<=alpha时，我们称ai为inferior服务器，用I表示它们的集合。由于inferior服务器的数量直接关系到rounding算法的结果，因此本小节要对I中的服务器进行裁剪。此外，alpha<yi<1的服务器也在经过处理后，加入到S中。
-The values of $x$ and $y$ are in the range of 0 to 1 in $\sigma=(x,y)$. Given a parameter $0<\alpha\le1/2$, and each server with non-zero $y_i$ can be classified according to the relationship with $\alpha$. When $y_i=1$, we call ai a superior server and denote their set by $S$. When $0< yi\le \alpha$, we call $a_i$ an inferior server and denote their set by $I$.
+Since the number of inferior servers is directly related to the result of the rounding algorithm, this subsection is to trim the replaceable servers in $\mathcal{I}$. In addition, servers with $\alpha < y_i < 1$ are also added to $\mathcal{S}$ at the end of Alg.\ref{alg:DSIS}.
 
 \begin{figure}[!t]
 	\renewcommand{\algorithmicrequire}{\textbf{Input:}}

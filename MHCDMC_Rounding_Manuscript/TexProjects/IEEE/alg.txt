@@ -1,0 +1,34 @@
+\begin{figure}[!t]
+	\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+	\renewcommand{\algorithmicensure}{\textbf{Output:}}
+	\begin{algorithm}[H]
+		\caption{Determining Superior and Inferior Servers (DSIS)}
+		\begin{algorithmic}[1]\label{alg:DSIS}
+			\REQUIRE A fraction solution of LP(\ref{lp:2}) $\sigma$, a parameter $\alpha$ and the magnitudes of variable of power and SINR ${\varepsilon ^p}$ and ${\varepsilon ^{SINR}}$.
+			\ENSURE A fraction solution $\overline \sigma = ({\overline x},{\overline y})$ containing only superior and inferior servers.
+			\STATE Initialize $\overline x \leftarrow x$, $\overline y \leftarrow y$.
+			\STATE ${\mathcal{S}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; {{\overline y}_i} = 1} \right\}$, ${\mathcal{I}} \leftarrow \left\{ {{a_i}|\forall{a_i} \in A\; {\rm{and}} \; 0<{{\overline y}_i} \le \alpha} \right\}$.
+			\FORALL{$u_j \in U$}
+			\IF{$\sum\nolimits_{{a_i} \in \mathcal{I}:{{\overline x }_{ij}} > 0} {{{\overline y }_i}}  > \alpha $}
+			\STATE Construct an set $\mathcal{I}_j$ of inferior servers serving $u_j$  such that $\alpha < \sum\nolimits_{{a_i} \in \mathcal{I}_j} {{{\overline y }_i}}  \le 2\alpha $.
+			\STATE $r \leftarrow \mathop {\max }\limits_{{a_i} \in {\mathcal{I}_j}} {r_i}$, $\mathcal{T}\leftarrow\left\{a_i|r_i \le {\varepsilon r}/2, \forall a_i \in \mathcal{I}_j \right\}$.
+			\STATE Divide the set $\mathcal{I}_j \backslash \mathcal{T}$ of servers into $\left\lceil {\log (1/\varepsilon )} \right\rceil $ levels such that each $l$th level server $a_i$ has $2^{l-1}r \varepsilon < r_i \le 2^{l}r \varepsilon $, $0\le l \le \left\lceil {\log (1/\varepsilon )} \right \rceil$.
+			\FOR{$l=0$ to $\left\lceil {\log (1/\varepsilon )} \right \rceil$}
+			% 将以$u_j$为中心的边长为2^{l+2}r\varepsilon$的正方形切割成网格单元，每个网格单元的边长为2^{l-2}r\varepsilon^2$。
+			\STATE Cut the square centered at $u_j$ with side length $2^{l+2}r \varepsilon$ to grid cells, and each grid cell has side length $2^{l-2}r \varepsilon^2$.
+			\STATE For each grid cell that contains at least one server, creating a group $G_l$ consisting of all servers contained in the grid cell.
+			\STATE $\mathcal{G}_l \leftarrow$ all groups in the $l$th level.
+			\FORALL{$G_l\in \mathcal{G}_l$}
+			\STATE $a_m \leftarrow \mathop {\arg \max }\nolimits_{{a_i} \in {G_l}} {r_i}$, reroute the flow from each $a_i\in G_l\backslash\left\{a_m\right\}$ to $a_m$.
+			\STATE $\overline{y}_m\leftarrow 1$; $\overline{y}_i \leftarrow 0, \forall a_i \in G_l\backslash\left\{a_m\right\}$.
+			\ENDFOR
+			\ENDFOR
+			\STATE Reroute the flow from $\mathcal{T}$ to server has maximum radii in $\mathcal{I}_j$.
+			\ENDIF
+			\ENDFOR
+			\STATE $\overline{y}_i \leftarrow 1, \forall a_i \in A, \alpha < y_i < 1$.
+			\RETURN $\overline{\sigma}$.
+		\end{algorithmic}
+	\end{algorithm}
+\end{figure}
+
