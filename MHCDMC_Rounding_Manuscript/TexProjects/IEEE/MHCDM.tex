@@ -686,11 +686,11 @@ Since the number of inferior servers is directly related to the result of the ro
 
 
 % 算法1主循环对每一个用户进行遍历。对于每一个用户u_j\in U，如果sum y_i > alpha，说明u_j此时被很多inferior服务器服务，我们需要剔除一些其中不必要的服务器。我们构造一个当前服务u_j的inferior服务器集合I_j，其中最大的半径为r。算法的核心思想是将I_j划分为log(1/e)个等级，对每个等级的服务器分别考虑。对于等级为l的服务器，由于他们都服务着u_j，因此他们都位于以u_j为中心，边长为2^{l+2}r\varepsilon 的方形区域中。我们将该区域切割为边长为2^{l-2}r\varepsilon^2的grid cell。那么等级为i的方形区域中至多有O(\varepsilon^{-2})grid cells. 因此G_l中至多有O(\varepsilon^{-2})个组，算法12-15行至将O(\varepsilon^{-2})个inferior 服务器变superior。
-The main loop of Alg.\ref{alg:DSIS} iterates over each user. For each user $u_j\in U$, if $\alpha < \sum\nolimits_{{a_i} \in \mathcal{I}_j} {{{\overline y }_i}}  \le 2\alpha $, it means that $u_j$ is served by many inferior servers currently, and we need to eliminate some unnecessary servers among them. We construct a set $\mathcal{I}_j$ of inferior servers currently serving $u_j$. These servers are contained in a square centered at $u_j$ with side length $4r$. We divide the square into grid cells with side length $(r\varepsilon)/2$. We will get at most $O(\varepsilon^{-2})$ grid cells in the square. Thus there are at most $O(\varepsilon^{-2})$ groups in $\mathcal{G}_j$. At most $O( \varepsilon^{-2})$ inferior servers exchange to superior in lines 9-13 of Alg.\ref{alg:DSIS}.
+The main loop of Alg.\ref{alg:DSIS} iterates over each user. For each user $u_j\in U$, if $\alpha < \sum\nolimits_{{a_i} \in \mathcal{I}_j} {{{\overline y }_i}}  \le 2\alpha $, it means that $u_j$ is served by many inferior servers currently, and we need to eliminate some unnecessary servers among them. We construct a set $\mathcal{I}_j$ of inferior servers currently serving $u_j$. These servers are contained in a square centered at $u_j$ with side length $4r$. We divide the square into grid cells with side length $(r\varepsilon)/2$. We will get $O(\varepsilon^{-2})$ grid cells in the square. Thus there are $O(\varepsilon^{-2})$ groups in $\mathcal{G}_j$.
 
 
 % 在算法1 12-15行，我们选择了每个组中半径最大的服务器a_m，并将组中其它服务器的流从引流到了a_m。a_m能服务每个$a_i \in G_l $ 服务的用户，是因为群组中的服务器之间的距离不会超过 $2^{l-1}r \varepsilon^2 $。所有被$a_i$服务的用户到$a_m$的距离为$ 2^{l-1}r\varepsilon^2 + r_i \le $\varepsilon$r_m + r_m = (1+\varepsilon)r_m $。此外，由于单调性性质，服务器功率越大，容量越大，在重引流之后a_m的容量约束不会被破坏.$公式组$
-In Alg.\ref{alg:DSIS}, lines 9-13, we choose the server $a_m$ arbitrarily in each group and reroute the flow from the other servers in the group to $a_m$. $a_m$ can serve every user served by $a_i \in G_l $ because the distance between the servers in $G_l$ does not exceed $r\varepsilon$. The distance to $a_m$ for all users served by $a_i$ is $r\varepsilon + r = (1+\varepsilon)r $. Moreover, the capacity constraint of $a_m$ is not broken after reroute since:
+In Alg.\ref{alg:DSIS}, lines 10-14, we choose the server $a_m$ arbitrarily in each group and reroute the flow from the other servers in the group to $a_m$. $a_m$ can serve every user served by $a_i \in G_l $ because the distance between the servers in $G_l$ does not exceed $r\varepsilon$. The distance to $a_m$ for all users served by $a_i$ is $r\varepsilon + r = (1+\varepsilon)r $. Moreover, the capacity constraint of $a_m$ is not broken after reroute since:
 \begin{eqnarray*}
 	\sum\limits_{u_j \in U, a_i \in G_l} {x_{ij}BR_j} &\le&\sum\limits_{a_i\in G_l} {\sum\limits_{u_j \in a_i} {x_{ij}BR_j}}\\
 	&\le&\sum\limits_{a_i\in G_l} {y_i BW}\\
@@ -742,13 +742,7 @@ At the end of Alg.\ref{alg:DSIS}, all servers with $\alpha<y_i<1$ are turned int
 	\end{eqnarray}
 \end{lemma}
 
-\begin{lemma}
-	cost($\overline \sigma$) $= O(\varepsilon^{-2} )\cdot$ cost($\sigma$).
-\end{lemma}
 
-\begin{proof}
-	Consider an iteration of Alg.\ref{alg:DSIS}. At the beginning of the iteration, all servers in $\mathcal{I}_j$ were inferior, and $y(\mathcal{I}_j) > \alpha$.After the iteration,none of the servers in $\mathcal{I}_j$ are inferior. Furthermore, we select $O(\varepsilon^{-2})$ servers from $\mathcal{I}_j$ in the iteration.
-\end{proof}
 
 \subsection{Clustering of Servers}
 \begin{figure}[!t]
@@ -887,21 +881,61 @@ Otherwise, we will cut the square containing $C_h$ with side length $6r$ to grid
 \end{figure}
 
 \subsection{Analysis of the Approximation Ratio}
+
+\begin{lemma} \label{lemma:DSIS}
+	cost($\overline \sigma$) $= O(\varepsilon^{-2}) \cdot$ cost($\sigma$).
+\end{lemma}
+
+\begin{proof}
+	Consider an iteration of Alg.\ref{alg:DSIS}. At the beginning of the iteration, all servers in $\mathcal{I}_j$ were inferior, and $y(\mathcal{I}_j) > \alpha$.After the iteration,none of the servers in $\mathcal{I}_j$ are inferior. Furthermore, we select $O(\varepsilon^{-2})$ servers from $\mathcal{I}_j$ in the iteration. It follows that the entire DSIS algorithm increases the cost by a factor of at most $O(\varepsilon^{-2})$.
+\end{proof}
+
+\begin{lemma} \label{lemma:CoS}
+	Alg.\ref{alg:CoS} CoS increases the cost of the solution $\overline\sigma$ only by a constant factor.
+\end{lemma}
+
+\begin{proof}
+	Consider an iteration of Alg.\ref{alg:DSIS}. At the beginning of the iteration, all servers in $\mathcal{I}_j$ were inferior, and $y(\mathcal{I}_j) > \alpha$.After the iteration,none of the servers in $\mathcal{I}_j$ are inferior. Furthermore, we select $O(\varepsilon^{-2})$ servers from $\mathcal{I}_j$ in the iteration. It follows that the entire DSIS algorithm increases the cost by a factor of at most $O(\varepsilon^{-2})$.
+\end{proof}
+
+\begin{lemma} \label{lemma:SFS}
+	cost($\widetilde \sigma$) $= O(\varepsilon^{-2}) \cdot$ cost($\widehat{\sigma}$).
+\end{lemma}
+
+\begin{proof}
+	Consider an iteration of Alg.\ref{alg:SFS}. We select $O(\varepsilon^{-2})$ servers from $C_h$ in the iteration. It follows that the entire SFS algorithm increases the cost by a factor of at most $O(\varepsilon^{-2}|\mathcal{S}''|)=O(\varepsilon^{-2})$.
+\end{proof}
+
+
 \begin{theorem}
 	% 
-	There is an approximation algorithm, Alg.\ref{alg:HR}, for MMCSC problem, which delivers a bi-criteria $(O(\varepsilon^{-2}), 1+\varepsilon)$-approximate solution, where $\varepsilon$ defined in Eq.\ref{eq9}. In addition, the time complexity of the algorithm is $O()$.
+	There is an approximation algorithm, Alg.\ref{alg:HR}, for MMCSC problem, which delivers a bi-criteria $(O(\varepsilon^{-4}), 1+\varepsilon)$-approximate solution, where $\varepsilon$ defined in Eq.\ref{eq9}. In addition, the time complexity of the algorithm is $O()$.
 \end{theorem}
 
 \begin{IEEEproof}[proof (Approximation ratio)]
-	ieeeproof
+	With the analysis of Lemma \ref{lemma:DSIS}, Lemma \ref{lemma:CoS} and Lemma \ref{lemma:SFS}, we have that 
+	\begin{eqnarray*}
+		\text{cost}(\widetilde{\sigma}) &=&O(\varepsilon^{-2}) \cdot \text{cost}(\widehat{ \sigma })\\
+		&\le&cO(\varepsilon^{-2}) \cdot \text{cost}(\overline{\sigma})\\
+		&=& O(\varepsilon^{-4}) \cdot \text{cost}(\sigma)\\
+		&\le& O(\varepsilon^{-4}) \cdot OPT.
+	\end{eqnarray*} 
+	
+	% 我们将对算法的三个步骤分别进行分析。在算法2中，我们要判断n个用户是否有过多的inferior servers服务它。在我们将包含$I_j$的区域划分为$O(\varepsilon^{-2})$个grid cells之后，我们要用 $O(m \varepsilon^{ -2 }) $ 的时间来构造group的集合 $\mathcal{G}_j$。The compexity of selection of inferior servers (i.e. line 10-14) is $O(mn\cdot\varepsilon^{-2})$, where the reroute step will complete within $O(mn)$. Thus, the computational complexity of Alg.\ref{alg:DSIS} is $mn^2\varepsilon^{-2}$
+	\emph{(Polynomial Running Time):} We will analyze the complexity of Alg.\ref{alg:DSIS}, Alg.\ref{alg:CoS} and Alg.\ref{alg:SFS} respectively.
 	
 	
-	\emph{(Polynomial Running Time):} sadf s
+	In Alg.\ref{alg:DSIS}, we have to determine whether $n$ users have too many inferior servers to serve it (i.e. $\sum\nolimits_{{a_i} \in \mathcal{I}:{{\overline x }_{ij}} > 0} {{{\overline y }_i}}  > \alpha$). And we will take $O(m\varepsilon^{-2})$ time to construct $\mathcal{G}_j$. There are at most $\varepsilon^{-2}$ groups in $\mathcal{G}_j$, and the complexity of reroute the flow from $\forall a_i\in G_l\backslash \left\{a_i\right\}$ to $a_i$ is $mn$. So the complexity of lines 10-14 is $mn\varepsilon^{-2}$. Thus, the complexity of Alg.\ref{alg:DSIS} is $O( mn ^ 2 \varepsilon ^ { -2 })$.
+	
+	
+	We can conclude that Alg.\ref{alg:CoS} would terminate within $m$ iterations theoretically. In each iteration, we first try to add the inferior servers into a cluster in $O(m^2n)$. And the follow step is selection of inferior server. For the three cases, case ii spends the longest time, is $mn^2$. Then, the time complexity of Alg.\ref{alg:CoS} is $O(m^3n+m^2n^2)$.
+	
+	
+	The outer loop of Alg.\ref{alg:SFS} is performed at most $m$ iterations, and the time complexity of each iteration is similar to that of each iteration of Alg.\ref{alg:DSIS}, which is $O(mn\varepsilon^{-2})$. So the time complexity of Alg.\ref{alg:SFS} is $O(m^2n\varepsilon^{-2})$.
+	
+	
+	In summary, the time complexity of our proposed Grid-based three-step rounding approximation algorithm is $O(mn^2\varepsilon^{-2} + m^3n + m^2n^2 + m^2n\varepsilon^{-2})$.
 \end{IEEEproof}
-Analysis of the Approximation Ratio
-Analysis of the Approximation Ratio
-Analysis of the Approximation Ratio
-Analysis of the Approximation Ratio
 
 \section{Pre-set location generation algorithm}
 % 无人机预置点集合A中，各个无人机的位置将会对算法1的结果造成直接影响。因此如何得到集合A同样至关重要。由于无人机灵活的机动性，它们能被部署到区域内的任意位置。但是遍历每一个可能的位置是不切实际的。本小节提出了一种基于图重心的分级预置点生成算法。

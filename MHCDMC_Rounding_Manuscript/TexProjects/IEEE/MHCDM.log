@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.8.3)  22 NOV 2022 22:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (MiKTeX 22.3) (preloaded format=pdflatex 2022.8.3)  26 NOV 2022 20:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -532,56 +532,58 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ] [2]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
 put line 667.
- [3] [4] (MHCDM.bbl [5])
-<./pic/author/zqh.jpg, id=297, 1084.05pt x 1590.94376pt>
-File: ./pic/author/zqh.jpg Graphic file (type jpg)
-<use ./pic/author/zqh.jpg>
-Package pdftex.def Info: ./pic/author/zqh.jpg  used on input line 994.
-(pdftex.def)             Requested size: 61.54999pt x 90.3303pt.
-File: ./pic/author/zqh.jpg Graphic file (type jpg)
-<use ./pic/author/zqh.jpg>
-Package pdftex.def Info: ./pic/author/zqh.jpg  used on input line 994.
-(pdftex.def)             Requested size: 61.54999pt x 90.3303pt.
-<./pic/author/lwd.png, id=300, 105.39375pt x 128.73094pt>
-File: ./pic/author/lwd.png Graphic file (type png)
-<use ./pic/author/lwd.png>
-Package pdftex.def Info: ./pic/author/lwd.png  used on input line 1000.
-(pdftex.def)             Requested size: 72.27145pt x 88.27443pt.
-File: ./pic/author/lwd.png Graphic file (type png)
-<use ./pic/author/lwd.png>
-Package pdftex.def Info: ./pic/author/lwd.png  used on input line 1000.
-(pdftex.def)             Requested size: 72.27145pt x 88.27443pt.
-<./pic/author/sq.jpg, id=304, 458.1918pt x 681.9879pt>
-File: ./pic/author/sq.jpg Graphic file (type jpg)
-<use ./pic/author/sq.jpg>
-Package pdftex.def Info: ./pic/author/sq.jpg  used on input line 1004.
-(pdftex.def)             Requested size: 72.27046pt x 107.56975pt.
-File: ./pic/author/sq.jpg Graphic file (type jpg)
-<use ./pic/author/sq.jpg>
-Package pdftex.def Info: ./pic/author/sq.jpg  used on input line 1004.
-(pdftex.def)             Requested size: 72.27046pt x 107.56975pt.
-<./pic/author/zxj.jpg, id=305, 84.4245pt x 84.4245pt>
-File: ./pic/author/zxj.jpg Graphic file (type jpg)
-<use ./pic/author/zxj.jpg>
-Package pdftex.def Info: ./pic/author/zxj.jpg  used on input line 1013.
-(pdftex.def)             Requested size: 72.27127pt x 72.27127pt.
-File: ./pic/author/zxj.jpg Graphic file (type jpg)
-<use ./pic/author/zxj.jpg>
-Package pdftex.def Info: ./pic/author/zxj.jpg  used on input line 1013.
-(pdftex.def)             Requested size: 72.27127pt x 72.27127pt.
- [6
+ [3] [4]
+Underfull \hbox (badness 4341) in paragraph at lines 937--938
+[]\OT1/ptm/m/n/10 In sum-mary, the time com-plex-ity of our pro-posed
+ []
 
- <./pic/author/zqh.jpg> <./pic/author/lwd.png> <./pic/author/sq.jpg> <./pic/aut
-hor/zxj.jpg>]
-(MHCDM.aux)
+[5] (MHCDM.bbl)
+<./pic/author/zqh.jpg, id=313, 1084.05pt x 1590.94376pt>
+File: ./pic/author/zqh.jpg Graphic file (type jpg)
+<use ./pic/author/zqh.jpg>
+Package pdftex.def Info: ./pic/author/zqh.jpg  used on input line 1028.
+(pdftex.def)             Requested size: 61.54999pt x 90.3303pt.
+File: ./pic/author/zqh.jpg Graphic file (type jpg)
+<use ./pic/author/zqh.jpg>
+Package pdftex.def Info: ./pic/author/zqh.jpg  used on input line 1028.
+(pdftex.def)             Requested size: 61.54999pt x 90.3303pt.
+<./pic/author/lwd.png, id=316, 105.39375pt x 128.73094pt>
+File: ./pic/author/lwd.png Graphic file (type png)
+<use ./pic/author/lwd.png>
+Package pdftex.def Info: ./pic/author/lwd.png  used on input line 1034.
+(pdftex.def)             Requested size: 72.27145pt x 88.27443pt.
+File: ./pic/author/lwd.png Graphic file (type png)
+<use ./pic/author/lwd.png>
+Package pdftex.def Info: ./pic/author/lwd.png  used on input line 1034.
+(pdftex.def)             Requested size: 72.27145pt x 88.27443pt.
+<./pic/author/sq.jpg, id=320, 458.1918pt x 681.9879pt>
+File: ./pic/author/sq.jpg Graphic file (type jpg)
+<use ./pic/author/sq.jpg>
+Package pdftex.def Info: ./pic/author/sq.jpg  used on input line 1038.
+(pdftex.def)             Requested size: 72.27046pt x 107.56975pt.
+File: ./pic/author/sq.jpg Graphic file (type jpg)
+<use ./pic/author/sq.jpg>
+Package pdftex.def Info: ./pic/author/sq.jpg  used on input line 1038.
+(pdftex.def)             Requested size: 72.27046pt x 107.56975pt.
+<./pic/author/zxj.jpg, id=321, 84.4245pt x 84.4245pt>
+File: ./pic/author/zxj.jpg Graphic file (type jpg)
+<use ./pic/author/zxj.jpg>
+Package pdftex.def Info: ./pic/author/zxj.jpg  used on input line 1047.
+(pdftex.def)             Requested size: 72.27127pt x 72.27127pt.
+File: ./pic/author/zxj.jpg Graphic file (type jpg)
+<use ./pic/author/zxj.jpg>
+Package pdftex.def Info: ./pic/author/zxj.jpg  used on input line 1047.
+(pdftex.def)             Requested size: 72.27127pt x 72.27127pt.
+ [6 <./pic/author/zqh.jpg> <./pic/author/lwd.png> <./pic/author/sq.jpg> <./pic/
+author/zxj.jpg>] (MHCDM.aux)
 Package rerunfilecheck Info: File `MHCDM.out' has not changed.
 (rerunfilecheck)             Checksum: 80BB7CF6985FADA0A4FC69207270BF35;3636.
  ) 
 Here is how much of TeX's memory you used:
- 10873 strings out of 478351
- 174645 string characters out of 2851123
- 513639 words of memory out of 3000000
- 28985 multiletter control sequences out of 15000+600000
+ 10878 strings out of 478351
+ 174693 string characters out of 2851123
+ 512702 words of memory out of 3000000
+ 28988 multiletter control sequences out of 15000+600000
  506967 words of font info for 90 fonts, out of 8000000 for 9000
  1144 hyphenation exceptions out of 8191
  72i,14n,77p,1146b,848s stack positions out of 10000i,1000n,20000p,200000b,80000s
@@ -597,9 +599,9 @@ iKTeX/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/CTEX/MiKTeX/fonts/type1/urw/
 times/utmb8a.pfb><C:/CTEX/MiKTeX/fonts/type1/urw/times/utmbi8a.pfb><C:/CTEX/MiK
 TeX/fonts/type1/urw/times/utmr8a.pfb><C:/CTEX/MiKTeX/fonts/type1/urw/times/utmr
 i8a.pfb>
-Output written on MHCDM.pdf (6 pages, 2947651 bytes).
+Output written on MHCDM.pdf (6 pages, 2953490 bytes).
 PDF statistics:
- 405 PDF objects out of 1000 (max. 8388607)
- 138 named destinations out of 1000 (max. 500000)
+ 423 PDF objects out of 1000 (max. 8388607)
+ 140 named destinations out of 1000 (max. 500000)
  205 words of extra memory for PDF output out of 10000 (max. 10000000)
 
