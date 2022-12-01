@@ -7,6 +7,7 @@
 using namespace std;
 #include<string>
 #include<vector>
+#include<map>
 #include <iostream>
 #include <math.h>
 #include <limits.h>
@@ -24,7 +25,11 @@ const double c = 299792458;			// 光速 m/s
 const double eta_LOS = 1;	// shadow fading loss of LoS, 1 dB
 const double N0 = -174;		// 背景噪声 −174 dBm/Hz    总功率 = -174 + 10log(1Mhz) = -114
 static double N_I = 36;				// 干扰噪声，36dB  之后可能会更新
-const double SINR_min = -7;	// 最小信噪比 10 dBm
+const double SINR_min = -7;	// 最小信噪比 -7 dBm
+const double power = 33;	// 无人机信号发射功率 33dBm
+const double alpha = 0.5;
+const double h = 300;		// 无人机飞行高度
+const double BW = 20 * 10e6;	// 无人机的带宽容量
 
 union xu {
 	double** d;
@@ -35,6 +40,12 @@ union yu {
 	int* i;
 };
 
+class Point;
+class User;
+class Server;
+class Cover;
+class Result;
+class Cluster;
 
 class Point {
 public:
@@ -68,9 +79,9 @@ public:
 	int BW = 0;
 	int ID = -1;
 	bool isSelected = false;
-	double p = 33;			// 无人机功率 dBm		备选33 dBm
-	double h = 300;			// 无人机飞行高度		300m
-
+	double p = power;			// 无人机功率 dBm		备选33 dBm
+	double h = 300;				// 无人机飞行高度		300m
+	vector<int> served_user;
 
 	Server(double lx, double ly, int id, int bw);
 
@@ -79,13 +90,57 @@ public:
 	void print_server();
 };
 
+class Cluster
+{
+public:
+	Server sup_a;
+	vector<Server> cld_a;
+};
+
+class Result
+{
+public:
+	int** x = nullptr;
+	int* y = nullptr;
+	int m = 0;
+	int n = 0;
+	int chosen_m = 0;
+
+	Result() {}
+	Result(int** xx, int* yy, int mm, int nn) { x = xx; y = yy; m = mm; n = nn; }
+	Result(int mm, int nn) {
+		m = mm;
+		n = nn;
+		x = new int* [m];
+		y = new int[m];
+		for (int i = 0; i < m; i++)
+		{
+			x[i] = new int[m];
+		}
+	}
+	void init(int** xx, int* yy, int mm, int nn) { x = xx; y = yy; m = mm; n = nn; }
+
+	void int_(double** xx, double* yy);
+	// 写将x，y结果中被选择的UAV，那个无人机覆盖那个用户输出到文件
+	void write_result_file(string fname);
+};
+
 class Cover
 {
 public:
 	int m = 0;
 	int n = 0;
-	vector<User> u;
-	vector<Server> a;
+	vector<User> U;
+	vector<int> all_u;			// 一个0~n-1的数组，记录所有用户id
+	vector<Server> A;
+	Result result;
+	double ep_p = 1.0/33;		// p=33dBm,p'=34dBm
+	double ep_SINR = - 1.0/7;	// SINR_min=-7dB, SINR_min'=-8dB
+	double ep = 0;
+	double r = 0;				// 无人机在地面的覆盖半径
+
+	IloEnv env_IP;
+	IloEnv env_LP;
 
 	double** d = nullptr;	// 记录任意用户与服务器之间的距离
 	double** L = nullptr;	// path loss
@@ -93,17 +148,20 @@ public:
 	double** Gp = nullptr;		// G*p = p - L
 
 
+
 	/// <summary>
 	/// 函数
 	/// </summary>
 	/// <param name="fname"></param>
+	~Cover() { }
 	void initial(string fname);		// 根据fname文件中的数据初始化实例
 	void read_file(string fname);	// 读取fname文件中的数据
 
-	void cal_d();
-	void cal_L();
-	void cal_SINR();
-	void cal_min_r();
+	void cal_d();			// 计算所有用户与无人机之间的距离
+	void cal_L();			// 计算路径损耗
+	void cal_SINR();		// 计算信噪比
+	void cal_min_r();		// 计算无人机最小半径
+	void cal_ep();			// 根据epsilon_p和epsilon_SINR计算epsilon
 
 	void print_all_usersServers();	// 输出所有用户与服务器
 	template <class T>
@@ -112,24 +170,25 @@ public:
 	template<class TT, class T>
 	void print_cplex(TT x, T y);
 
-	void LP();	// 线性规划
+	void LP(double** x0, double* y0);	// 线性规划
 	void IP();	// 整数规划
+	
+	void GBTSR();	// Grid-based three-step rounding approximation algorithm
+	void DSIS(double** x, double* y, double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
+	vector<Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
+	Result SFS(double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC);												// Selecting the Final Servers(SFS)
+
+
+	// template<class TT>
+	// double sum(TT x, int len);				// 计算长度为len的x的和
+	void construct_I_j(vector<int>& I_j,  double sum_I, double* y);
+	void reroute(vector<int>& obj, vector<int>& src, int aim, double** x, double flow = 1); 	// 重引流
+	
+	
+	map<int, vector<int>> construct_GG(vector<int>& I, Point&cp, double L, double cl);		// 构造
 };
 
-class Result
-{
-public:
-	int type = 0;		// x,y的类型 0为double，1为int
-	xu x;
-	yu y;
-	int m;
-	int n;
 
-	Result(xu xx, yu yy, int t) { x = xx; y = yy; type = t; }
-	Result() { ; }
-
-	// 写将x，y结果中被选择的UAV，那个无人机覆盖那个用户输出到文件
-};
 
 
 

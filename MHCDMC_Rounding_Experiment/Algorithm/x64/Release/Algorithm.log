@@ -1,7 +1,16 @@
 ﻿  B2022.cpp
+  predefine.cpp
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(247,18): warning C4101: “end_”: 未引用的局部变量
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(484,16): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(489,20): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(375,18): warning C4101: “end_”: 未引用的局部变量
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(727,12): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
   正在生成代码
-  4 of 377 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(733): warning C4723: 潜在的被 0 除
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(732): warning C4723: 潜在的被 0 除
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(727): warning C4723: 潜在的被 0 除
+  111 of 610 functions (18.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+    45 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   Algorithm.vcxproj -> D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\x64\Release\Algorithm.exe

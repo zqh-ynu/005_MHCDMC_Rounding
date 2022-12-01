@@ -10,6 +10,7 @@ typedef IloArray <IloNumVarArray> IloNumVarArray2;
 
 void one_example();
 
+
 int main()
 {
     one_example();
@@ -17,14 +18,17 @@ int main()
     cover.cal_min_r();*/
 }
 
+
 void one_example()
 {
     string fname = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Generate_Points\\data\\example\\oneInstance.txt";
     Cover cover;
     cover.initial(fname);
-    // cover.print_all();
-    cover.LP();
-    cover.IP();
+    //cover.print_all();
+    // cout << "epsilon=" << cover.ep;
+    cover.GBTSR();
+    //cover.IP();
+    //cover.result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\oneresultDSIS.txt");
 }
 
 
