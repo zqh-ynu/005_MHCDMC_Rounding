@@ -64,7 +64,8 @@ void Cover::cal_L()
 void Cover::cal_SINR()
 {
 	// 
-	double N = N0 + 10 * log10(A[0].BW * 10e6) + N_I;
+	// double N = N0 + 10 * log10(A[0].BW * 10e6) + N_I;
+	double N = N0 + 10 * log10(20 * 10e6) + N_I;
 	for (int i = 0; i < m; i++)
 	{
 		for (int j = 0; j < n; j++)
@@ -74,6 +75,8 @@ void Cover::cal_SINR()
 
 void Cover::cal_min_r()
 {
+	//double BW = A[0].BW * 10e6;
+	double BW = 20 * 10e6;
 	double eta = 20 * log10((4 * PI * f) / c) + eta_LOS;
 	double N = N0 + 10 * log10(BW) + 36;
 	double zhishu = (power - SINR_min - eta - N) / 20;
@@ -125,6 +128,7 @@ void Cover::initial(string fname)
 	cal_d();
 	cal_L();
 	cal_SINR();
+	cal_min_r();
 	cal_ep();
 }
 
@@ -146,7 +150,7 @@ void Cover::read_file(string fname)
 		getline(infpoint, data);
 		istringstream istr2(data);
 		istr2 >> x >> y >> BW;
-		Server s(x, y, i, BW);
+		Server s(x, y, i, 20);
 		A.push_back(s);
 	}
 
@@ -571,19 +575,62 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 		for (int j = 0; j < n; j++)
 			x1[i][j] = x[i][j];
 	}
+	vector<int> allA;			// 记录y非零的服务器id
+	vector<int> ou = all_u;		// 按照服务用户的服务器数量降序排序的用户id
+	vector<int> ucount;			// 每个用户被覆盖的次数
 	vector<int> SS;				// superior server的集合
 	vector<int> II;				// inferior server的集合
 	vector<int> Mid;			// y值介于alpha与1之间的服务器的集合
 	for (int i = 0; i < m; i++)
 	{
-		if (y1[i] == 1)
-			SS.push_back(i);
-		else if (y1[i] > 0 and y1[i] <= alpha)
-			II.push_back(i);
-		else if (y1[i] > alpha)
-			Mid.push_back(i);
+		if (y[i] > 0)
+		{
+			allA.push_back(i);
+			if (y1[i] == 1)
+				SS.push_back(i);
+			else if (y1[i] <= alpha)
+				II.push_back(i);
+			else
+				Mid.push_back(i);
+		}
 	}
 
+	// 生成ou
+	for (int j = 0; j < n; j++)
+	{
+		ucount.push_back(0);
+		for (auto i : allA) {
+			if (x[i][j] > 0)
+				ucount[j]++;
+		}
+	}
+	cout << "befor: \n";
+	for (int j = 0; j < n; j++)
+	{
+		cout << ou[j] << ' ' << ucount[ou[j]] << ", ";
+	}
+	cout << '\n';
+	for (int j = 0; j < n; j++)
+	{
+		// max_id = uid 而不是j或者jj
+		int max_id = j;		// 先假定被覆盖次数最多的id为ou[j]
+		for (int jj = j + 1; jj < n; jj++)
+		{
+			int u = ou[jj];
+			int mu = ou[max_id];
+			if (ucount[u] > ucount[mu])
+				max_id = jj;
+		}
+		int temp = ou[j];
+		ou[j] = ou[max_id];
+		ou[max_id] = temp;
+	}
+	cout << "befor: \n";
+	for (int j = 0; j < n; j++)
+	{
+		cout << ou[j] << ' ' << ucount[ou[j]] << ", ";
+	}
+	cout << '\n';
 	
 	/*cout << "\nSS: ";
 	for (auto i : SS)
@@ -596,22 +643,32 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 		cout << i << ' ';
 	cout << '\n';*/
 
-	for (int j = 0; j < n; j++) {
+	double cl = r * ep / sqrt(2);
+	cout << "r = " << r << '\n';
+	cout << "ep = " << ep << '\n';
+	cout << "cl = " << cl << '\n';
+	for (auto j : ou)
+	{
 		double sum_I = 0;		// I_j 中服务器对应yi的和
 		vector<int> I_j;		// 服务xij的inferior server的集合
 		for (auto a : II)
 			if (x1[a][j] > 0)
 			{
-				sum_I += y1[a];
-				I_j.push_back(a);
+				if (y1[a] != 1 and y1[a] != 0)
+				{
+					sum_I += y1[a];
+					I_j.push_back(a);
+				}
 			}
 		if (sum_I > alpha)
 		{
-			cout << "chosen u: " << j << '\n';
-			// 构造符合alpha<sum_{ai_\in Ij}{y_i}<=2*alpha
+			cout << "-----------------------------------------\n";
+			cout << "chosen u: " << j << ' ';
+			U[j].print_user(); cout << '\n';
+			// 构造符合alpha<sum_{ai_\in Ij}{y_i}<= 2 * alpha
 			// 在construct_I_j函数中，I_j被修改成符合上述约束的集合
 			construct_I_j(I_j, sum_I, y1);
-			
+
 			cout << "I_j: ";
 			for (auto i : I_j)
 				cout << i << ' ';
@@ -619,14 +676,50 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 
 			// cp为被划分区域的中心点
 			Point cp = Point(U[j].X, U[j].Y);
-			double cl = 0;
-			map<int, vector<int>> GG = construct_GG(I_j, cp, 4 * r, cl);
 
+			
+			map<int, vector<int>> GG = construct_GG(I_j, cp, 4 * r, cl);
 			map<int, vector<int>>::iterator it = GG.begin();
 			map<int, vector<int>>::iterator itEnd = GG.end();
-
+			cout << "GG before:\n";
 			while (it != itEnd)
 			{
+				vector<int> g = it->second;
+				cout << "cell id: " << it->first;
+				cout << "\ng: ";
+				for (auto i : g)
+				{
+					cout << i << ' ';
+					A[i].print_server();
+					cout << '\t';
+				}
+				cout << '\n';
+				it++;
+			}
+			merge_GG(GG, cl);
+			it = GG.begin();
+			itEnd = GG.end();
+			cout << "GG after:\n";
+			while (it != itEnd)
+			{
+				vector<int> g = it->second;
+				cout << "cell id: " << it->first;
+				cout << "\ng: ";
+				for (auto i : g)
+				{
+					cout << i << ' ';
+					A[i].print_server();
+					cout << '\t';
+				}
+				cout << '\n';
+				it++;
+			}
+
+			it = GG.begin();
+			itEnd = GG.end();
+			while (it != itEnd)
+			{
+
 				// 对GG中的每一个group进行处理
 				vector<int> g = it->second;
 				int im = g.back();		// 将am定义为g中最后一个
@@ -642,7 +735,7 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 			}
 		}
 	}
-
+	
 	for (auto i : Mid)
 		y1[i] = 1;
 }
@@ -725,6 +818,8 @@ map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, d
 	double X0 = cp.X - L / 2;
 	double Y0 = cp.Y - L / 2;
 	int lines = ceil(L / cl);
+
+
 	for (auto i : I)
 	{
 		Server a = A[i];
@@ -732,7 +827,7 @@ map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, d
 		int ii = int((a.X - X0) / cl);
 		int jj = int((a.Y - Y0) / cl);
 		// key代表的是a所处的网格id（从下往上，从左往右，原点为X0，Y0）
-		int key = ii * lines + jj * lines;
+		int key = ii + jj * lines;
 
 		// 在GG中找以key为关键字的键值对，若没有，则GG.find(key)指向GG.end()
 		if (GG.find(key) == GG.end())
@@ -745,7 +840,107 @@ map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, d
 		else
 			GG[key].push_back(i);
 	}
+
+	// 合并GG中那些g只有一个服务器的g
+
 	return GG;
+}
+
+void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
+{
+	map<int, vector<int>> GG_ = GG;			// GG副本，在后面GG中某个G合并新g之后，之后要跟他合并的g只能与G.back()比较距离
+
+	map<int, vector<int>>::iterator it1 = GG.begin();
+	map<int, vector<int>>::iterator itEnd = GG.end();
+
+	vector<int> erased_key;	// 记录在GG中，被合并的长度为1的g的key值。在之后根据key值，在map中删除
+
+
+	while (it1 != itEnd)
+	{
+		// 外循环，找到长度为1的g
+		vector<int> g = it1->second;
+		// 记录当前g是否被合并，未被合并为0
+		int is_merge = 0;
+		if (g.size() == 1)
+		{
+			// 只有当前的g的长度为1才能被合并，进行以下步骤
+			// g对应的key
+			int key = it1->first;
+			// g中的唯一的server
+			Server a1 = A[g[0]];
+
+			// 从map开头为g寻找能够加入的G
+			map<int, vector<int>>::iterator it2 = GG.begin();
+			while (it2 != itEnd) {
+				if (it2 == it1)
+				{
+					// 若it2==it1，表明it2指向了当前g，则什么都不做
+				}
+				else
+				{
+					// 每次it2都要判断g是否被merge，上个迭代被merge后，这个迭代就会退出迭代
+					if (is_merge == 0)
+					{
+						// 记录G对应的KEY值
+						int KEY = it2->first;
+						// G是g可能加入的对象
+						vector<int> G = it2->second;
+						// G_是G的原身，若他们相同，则说明G没有加入过g
+						vector<int> G_ = GG_[KEY];
+						// 若他们相同，则说明G没有加入过g，需要将g与G中每一个服务器比较距离
+						if (G.size() == G_.size())
+						{
+							// 遍历G，ii是其中元素的下标
+							for (int ii = 0; ii < G.size(); ii++)
+							{
+								// i为当前的服务器id
+								int i = G[ii];
+								// 若g与A[i]距离小于cl，就可以merge
+								if (a1.cal_distance(A[i]) <= cl)
+								{
+									// 将g中服务器id g[0]保存到G中ii下标初，会覆盖i
+									it2->second[ii] = g[0];
+									// 在末尾加入i
+									it2->second.push_back(i);
+									// 在erased_key中加入当前被merge的g的键值
+									erased_key.push_back(key);
+									is_merge = 1;
+									break;
+								}
+							}
+						}
+						else
+						{
+							// 如果G中已经merge过服务器，那么就只能与G中的最后一个服务器比较距离
+							int i = G.back();
+							int ii = G.size() - 1;
+							if (a1.cal_distance(A[i]) <= cl)
+							{
+								it2->second[ii] = g[0];
+								it2->second.push_back(i);
+								erased_key.push_back(key);
+								is_merge = 1;
+							}
+						}
+
+					}
+					else
+					{
+						break;
+					}
+				}
+				it2++;
+			}
+
+		}
+		it1++;
+	}
+
+	for (auto key : erased_key)
+	{
+		GG.erase(key);
+	}
 }
 
 

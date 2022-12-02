@@ -29,7 +29,7 @@ const double SINR_min = -7;	// 最小信噪比 -7 dBm
 const double power = 33;	// 无人机信号发射功率 33dBm
 const double alpha = 0.5;
 const double h = 300;		// 无人机飞行高度
-const double BW = 20 * 10e6;	// 无人机的带宽容量
+// const double BW = 20 * 10e6;	// 无人机的带宽容量
 
 union xu {
 	double** d;
@@ -186,6 +186,7 @@ public:
 	
 	
 	map<int, vector<int>> construct_GG(vector<int>& I, Point&cp, double L, double cl);		// 构造
+	void merge_GG(map<int, vector<int>>& GG, double cl);
 };
 
 
