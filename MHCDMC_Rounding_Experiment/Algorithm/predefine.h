@@ -40,12 +40,13 @@ union yu {
 	int* i;
 };
 
+typedef vector<int> Cluster;
+
 class Point;
 class User;
 class Server;
 class Cover;
 class Result;
-class Cluster;
 
 class Point {
 public:
@@ -90,12 +91,7 @@ public:
 	void print_server();
 };
 
-class Cluster
-{
-public:
-	Server sup_a;
-	vector<Server> cld_a;
-};
+
 
 class Result
 {
@@ -169,13 +165,15 @@ public:
 	void print_all();
 	template<class TT, class T>
 	void print_cplex(TT x, T y);
+	template<class TT, class T>
+	void print_RB(TT x, T y);			// 打印当前状态下，y值不为零无人机对应的剩余容量
 
 	void LP(double** x0, double* y0);	// 线性规划
 	void IP();	// 整数规划
 	
 	void GBTSR();	// Grid-based three-step rounding approximation algorithm
 	void DSIS(double** x, double* y, double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
-	vector<Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
+	map<int, Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
 	Result SFS(double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC);												// Selecting the Final Servers(SFS)
 
 
@@ -183,7 +181,12 @@ public:
 	// double sum(TT x, int len);				// 计算长度为len的x的和
 	void construct_I_j(vector<int>& I_j,  double sum_I, double* y);
 	void reroute(vector<int>& obj, vector<int>& src, int aim, double** x, double flow = 1); 	// 重引流
-	
+	template<class T>
+	double get_sumBR(int i, T x);		// 计算无人机ai的已用容量
+	template<class T>
+	double get_RB(int i, T x);		// 计算无人机ai的剩余容量
+	double get_BRmin(vector<int>& Ai);
+	int get_max_xBR(int t, vector<int>& At, double RBt, double** x);		// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
 	
 	map<int, vector<int>> construct_GG(vector<int>& I, Point&cp, double L, double cl);		// 构造
 	void merge_GG(map<int, vector<int>>& GG, double cl);

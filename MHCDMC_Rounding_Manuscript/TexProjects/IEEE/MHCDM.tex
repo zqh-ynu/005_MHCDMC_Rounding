@@ -770,7 +770,7 @@ At the end of Alg.\ref{alg:DSIS}, all servers with $\alpha<y_i<1$ are turned int
 			\STATE $a_t \leftarrow \arg\max_{a_i \in \mathcal{I}'}{k_i}$.
 			\STATE $\mathcal{O} \leftarrow  \mathcal{O} \cup \left\{a_t\right\}$; $\mathcal{I}' \leftarrow \mathcal{I}' \backslash \left\{a_t\right\}$.
 			\IF{$k_t \equiv \sum\nolimits_{{u_j} \in A_t} {{BR_t}} \le BW$}
-			\STATE Reroute the flow of all $u_j\in A_i$ from $A \backslash \mathcal{O}$ to $a_t$. 
+			\STATE Reroute the flow of all $u_j\in A_t$ from $A \backslash \mathcal{O}$ to $a_t$. 
 			%\STATE Update $RB_t$ and $RB_i, \forall a_i \in \mathcal{S}'$.
 			\ENDIF
 			\IF{$k_t \equiv BW < \sum\nolimits_{{u_j} \in A_t} {{BR_t}} $ and $k_t \ge 2BR_t^{\min}$}
@@ -783,7 +783,7 @@ At the end of Alg.\ref{alg:DSIS}, all servers with $\alpha<y_i<1$ are turned int
 			\STATE $u_k \leftarrow \arg\max_{u_j \in A_t : BR_j \le BW_t}BR_j$.
 			\STATE Reroute the flow of $u_k$ from $\mathcal{I}'$ to $a_t$.
 			\STATE $f \leftarrow \sum\nolimits_{{a_i} \in \mathcal{O}} {{{\widehat x}_{ik}}} $.
-			\STATE Reroute the $\min \left\{RB_t/BR_j, (1-f)\right\}$ amount of flow from $\mathcal{C}$ to $a_t$.
+			\STATE Reroute the $\min \left\{RB_t/BR_k, (1-f)\right\}$ amount of flow from $\mathcal{C}$ to $a_t$.
 			\ENDIF
 			\ENDIF
 			\ENDWHILE

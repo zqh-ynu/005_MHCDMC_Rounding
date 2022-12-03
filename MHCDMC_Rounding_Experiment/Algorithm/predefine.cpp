@@ -225,6 +225,46 @@ void Cover::print_cplex(TT x, T y)
 	}
 }
 
+template<class TT, class T>
+void Cover::print_RB(TT x, T y)
+{
+	map<int, double> RBs;
+	for (int i = 0; i < m; i++)
+	{
+		if (y[i] > 0)
+		{
+			double RB = 0;
+			for (int j = 0; j < n; j++)
+				RB += x[i][j] * U[j].BR;
+			RB = A[i].BW * y[i] - RB;
+			RBs[i] = RB;
+		}
+	}
+	cout << "RBs:\n";
+	map<int, double>::iterator it = RBs.begin();
+	while (it != RBs.end()) {
+		cout << "a" << it->first << ": " << it->second << '\t';
+		it++;
+	}
+}
+
+template<class T>
+double Cover::get_sumBR(int i, T x)
+{
+	double sum = 0;
+	for (int j = 0; j < n; j++)
+		sum += x[i][j] * U[j].BR;
+	return sum;
+}
+
+template<class T>
+double Cover::get_RB(int i, T x)
+{
+	double BW = A[i].BW;
+	double sum = get_sumBR(i, x);
+	return BW - sum >= 0 ? BW - sum : 0;
+}
+
 //template<class TT>
 //double Cover::sum(TT x, int len)
 //{
@@ -537,15 +577,21 @@ void Cover::GBTSR()
 
 
 	LP(x, y);
+	print_RB(x, y);
 	print_cplex(x, y);
 	result.int_(x, y);
 
 
 	DSIS(x, y, x1, y1);
+	print_RB(x1, y1);
 	print_cplex(x1, y1);
 	result.int_(x1, y1);
-	/*vector<Cluster> CC = COS(x1, y1, x2, y2);
-	Result resulth = SFS(x2, y2, x3, y3, CC);*/
+
+
+	map<int, Cluster> CC = COS(x1, y1, x2, y2);
+	print_RB(x2, y2);
+	print_cplex(x2, y2);
+	result.int_(x2, y2);
 
 
 
@@ -583,7 +629,7 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 	vector<int> Mid;			// y值介于alpha与1之间的服务器的集合
 	for (int i = 0; i < m; i++)
 	{
-		if (y[i] > 0)
+		if (y1[i] > 0)
 		{
 			allA.push_back(i);
 			if (y1[i] == 1)
@@ -644,6 +690,7 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 	cout << '\n';*/
 
 	double cl = r * ep / sqrt(2);
+	// cl = 1000; 
 	cout << "r = " << r << '\n';
 	cout << "ep = " << ep << '\n';
 	cout << "cl = " << cl << '\n';
@@ -740,9 +787,174 @@ void Cover::DSIS(double** x, double* y, double** x1, double* y1)
 		y1[i] = 1;
 }
 
-vector<Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
+map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 {
-	return vector<Cluster>();
+	for (int i = 0; i < m; i++)
+	{
+		y2[i] = y1[i];
+		for (int j = 0; j < n; j++)
+			x2[i][j] = x1[i][j];
+	}
+	vector<int> allu = all_u;
+	vector<int> allA;			// 所有服务器id集合
+	vector<int> SS;				// superior server的集合
+	vector<int> II;				// inferior server的集合
+	vector<int> OO;				// 大O集合
+	map<int, Cluster> CC;
+	for (int i = 0; i < m; i++)
+	{
+		if (y2[i] > 0)
+		{
+			allA.push_back(i);
+			if (y2[i] == 1)
+			{
+				Cluster C;
+				C.push_back(i);
+				CC[i] = C;
+				SS.push_back(i);
+			}
+			else if (y2[i] <= alpha)
+				II.push_back(i);
+		}
+	}
+
+
+	while (II.size() != 0)
+	{
+		for (auto i : SS)
+		{
+			Server ai = A[i];
+			double RBi = get_RB(i, x2);
+			for (auto t : II)
+			{
+				Server at = A[t];
+				double sumBRt = get_sumBR(t, x2);
+				if (RBi >= sumBRt)
+				{
+					vector<int> src;
+					src.push_back(t);
+					reroute(allu, src, i, x2);
+					CC[i].push_back(t);
+					// 在II中删除t
+					auto iter = std::remove(II.begin(), II.end(), t);
+					II.erase(iter, II.end());
+				}
+			}
+		}
+
+		if (II.size() == 0)
+			break;
+		else
+		{
+			// 保存II中所有无人机对应的Ai，Ai为ai服务的用户的id集合
+			map<int, vector<int>> AA;
+			// Ki保存II中所有无人机对应的ki
+			vector<double> Ki;
+			for (auto i : II)
+			{
+				// 对II中的无人机ai，构造器服务的用户的id集合Ai
+				vector<int> Ai;
+				for (int j = 0; j < n; j++)
+					if (x2[i][j] > 0)Ai.push_back(j);
+				AA[i] = Ai;
+
+				// 计算ai对应的ki
+				double ki = 0;
+				for (auto j : Ai)
+					ki += U[j].BR;
+				if (A[0].BW < ki)
+					ki = A[0].BW;
+				Ki.push_back(ki);
+			}
+
+			// 在II中找到ki最小的无人机II[tt]及最小的ki值=Ki[tt]
+			int tt = 0;
+			for (int ii = 0; ii < II.size(); ii++)
+				if (Ki[ii] > Ki[tt])
+					tt = ii;
+			// at = II[tt]
+			int t = II[tt];
+			double kt = Ki[tt];
+			OO.push_back(t);
+			// 在II中删除t
+			auto iter = std::remove(II.begin(), II.end(), t);
+			II.erase(iter, II.end());
+
+			double BRmint = get_BRmin(AA[t]);
+			double sumBRt = 0;
+			for (auto j : AA[t])
+				sumBRt += U[j].BR;
+			// if kt == sumBRt <= BW
+			if (kt == sumBRt and kt <= A[0].BW)
+			{
+				vector<int> src = allA;
+				for (auto i : OO)
+				{
+					auto it = std::remove(src.begin(), src.end(), i);
+					src.erase(it, src.end());
+				}
+				reroute(AA[t], src, t, x2);
+			}
+			// if kt == BW < sumBRt and kt >= 2*BRmint
+			if (kt == A[0].BW and kt >= 2 * BRmint)
+			{
+				double RBt = get_RB(t, x2);
+				int j = get_max_xBR(t, AA[t], RBt, x2);
+				while (j != -1)
+				{
+					vector<int> uk;
+					vector<int> src = allA;
+					for (auto i : OO)
+					{
+						auto it = std::remove(src.begin(), src.end(), i);
+						src.erase(it, src.end());
+					}
+					uk.push_back(j);
+					reroute(uk, src, t, x2);
+					RBt -= x2[t][j] * U[j].BR;
+					j = get_max_xBR(t, AA[t], RBt, x2);
+				}
+			}
+			// if kt == BW < sumBRt and kt >= 2*BRmint
+			if (kt == A[0].BW and kt <= 2 * BRmint)
+			{
+				double RBt = get_RB(t, x2);
+				int j = get_max_xBR(t, AA[t], RBt, x2);
+				vector<int> uk;
+				uk.push_back(j);
+				reroute(uk, II, t, x2);
+				RBt = get_RB(t, x2);
+
+				double f = 0;
+				for (auto i : OO)
+					f += x2[i][j];
+				if (RBt / U[j].BR < f)
+					f = RBt / U[j].BR;
+
+				vector<int> src;
+
+				map<int, vector<int>>::iterator it = CC.begin();
+				while (it != CC.end())
+				{
+					for (auto i : it->second)
+						src.push_back(i);
+					it++;
+				}
+				reroute(uk, src, t, x2, f);
+				
+				
+			}
+		}
+	}
+
+	for (auto i : OO) {
+		y2[i] = 1;
+		Cluster C;
+		C.push_back(i);
+		CC[i] = C;
+	}
+
+	return CC;
 }
 
 Result Cover::SFS(double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC)
@@ -802,6 +1014,39 @@ void Cover::reroute(vector<int>& obj, vector<int>& src, int aim, double** x, dou
 				break;
 		}
 	}
+}
+
+double Cover::get_BRmin(vector<int>& Ai)
+{
+	double min = A[0].BW;
+	for (auto j : Ai)
+		if (min > U[j].BR)
+			min = U[j].BR;
+	return min;
+}
+
+int Cover::get_max_xBR(int t, vector<int>& At, double RBt, double** x)
+{
+	// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
+	// t: 当前无人机id
+	// At		无人机t当前服务的用户集合(x[t][j]>0)
+	// RBt		无人机t当前的剩余容量
+	// x
+	//	返回值：max_u			若max_u==-1,这说明没有合适的用户
+	int max_u = -1;		
+	double max_xBR = 0;
+	for (int j : At)
+	{
+		double xBRj = x[t][j] * U[j].BR;
+		if (xBRj <= RBt)
+		{
+			if (xBRj > max_xBR)
+				max_u = j;
+		}
+	}
+
+
+	return max_u;
 }
 
 map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, double cl)
