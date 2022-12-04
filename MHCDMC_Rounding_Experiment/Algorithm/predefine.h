@@ -166,7 +166,8 @@ public:
 	template<class TT, class T>
 	void print_cplex(TT x, T y);
 	template<class TT, class T>
-	void print_RB(TT x, T y);			// 打印当前状态下，y值不为零无人机对应的剩余容量
+	void print_RB(TT x, T y, int is_y = 0);			// 打印当前状态下，y值不为零无人机对应的剩余容量
+	void print_CC(map<int, Cluster>& CC);
 
 	void LP(double** x0, double* y0);	// 线性规划
 	void IP();	// 整数规划
@@ -174,7 +175,7 @@ public:
 	void GBTSR();	// Grid-based three-step rounding approximation algorithm
 	void DSIS(double** x, double* y, double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
 	map<int, Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
-	Result SFS(double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC);												// Selecting the Final Servers(SFS)
+	void SFS(double** x1, double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC);												// Selecting the Final Servers(SFS)
 
 
 	// template<class TT>
@@ -188,8 +189,11 @@ public:
 	double get_BRmin(vector<int>& Ai);
 	int get_max_xBR(int t, vector<int>& At, double RBt, double** x);		// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
 	
+
 	map<int, vector<int>> construct_GG(vector<int>& I, Point&cp, double L, double cl);		// 构造
 	void merge_GG(map<int, vector<int>>& GG, double cl);
+
+	map<int, vector<int>> get_ISorder(vector<int>& SS, vector<int>& II);
 };
 
 

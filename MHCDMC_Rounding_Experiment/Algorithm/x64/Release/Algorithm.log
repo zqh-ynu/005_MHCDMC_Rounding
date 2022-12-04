@@ -1,13 +1,13 @@
 ﻿  predefine.cpp
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(291,18): warning C4101: “end_”: 未引用的局部变量
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(528,16): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(533,20): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(419,18): warning C4101: “end_”: 未引用的局部变量
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1065,12): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1162,29): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(310,18): warning C4101: “end_”: 未引用的局部变量
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(547,16): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(552,20): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(438,18): warning C4101: “end_”: 未引用的局部变量
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1216,12): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1313,29): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   正在生成代码
-  1 of 813 functions ( 0.1%) were compiled, the rest were copied from previous compilation.
+  2 of 821 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+    2 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
   Algorithm.vcxproj -> D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\x64\Release\Algorithm.exe

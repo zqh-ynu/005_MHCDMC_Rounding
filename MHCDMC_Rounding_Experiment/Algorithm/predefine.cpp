@@ -150,7 +150,7 @@ void Cover::read_file(string fname)
 		getline(infpoint, data);
 		istringstream istr2(data);
 		istr2 >> x >> y >> BW;
-		Server s(x, y, i, 20);
+		Server s(x, y, i, 30);
 		A.push_back(s);
 	}
 
@@ -226,17 +226,21 @@ void Cover::print_cplex(TT x, T y)
 }
 
 template<class TT, class T>
-void Cover::print_RB(TT x, T y)
+void Cover::print_RB(TT x, T y, int is_y)
 {
+	// is_y			服务器容量是否乘上y这个系数		1表示乘，0表示不乘
 	map<int, double> RBs;
 	for (int i = 0; i < m; i++)
 	{
 		if (y[i] > 0)
 		{
+			double yy = y[i];
+			if (is_y == 0)
+				yy = 1;
 			double RB = 0;
 			for (int j = 0; j < n; j++)
 				RB += x[i][j] * U[j].BR;
-			RB = A[i].BW * y[i] - RB;
+			RB = A[i].BW * yy - RB;
 			RBs[i] = RB;
 		}
 	}
@@ -246,6 +250,7 @@ void Cover::print_RB(TT x, T y)
 		cout << "a" << it->first << ": " << it->second << '\t';
 		it++;
 	}
+	cout << '\n';
 }
 
 template<class T>
@@ -280,6 +285,20 @@ void Cover::print_all()
 	print_array(d, "d");
 	print_array(L, "L");
 	print_array(SINR, "SINR");
+}
+
+void Cover::print_CC(map<int, Cluster>& CC)
+{
+	map<int, Cluster>::iterator it = CC.begin();
+	cout << "CC:\n";
+	while (it != CC.end())
+	{
+		cout << "\tC" << it->first << ": ";
+		for (int j : it->second)
+			cout << j << ' ';
+		cout << '\n';
+		it++;
+	}
 }
 
 typedef IloArray <IloNumVarArray> IloNumVarArray2;
@@ -589,9 +608,12 @@ void Cover::GBTSR()
 
 
 	map<int, Cluster> CC = COS(x1, y1, x2, y2);
+	print_CC(CC);
 	print_RB(x2, y2);
 	print_cplex(x2, y2);
 	result.int_(x2, y2);
+
+
 
 
 
@@ -799,6 +821,9 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 	vector<int> allA;			// 所有服务器id集合
 	vector<int> SS;				// superior server的集合
 	vector<int> II;				// inferior server的集合
+	// inferior server 到各个 superior server距离升序排序，保存序号
+	// ISorder[2] = {3, 5, 6, 1} 的含义是，id为2的服务器，由近及远的无人机id为3,5,6,1
+	map<int, vector<int>> ISorder;	
 	vector<int> OO;				// 大O集合
 	map<int, Cluster> CC;
 	for (int i = 0; i < m; i++)
@@ -817,20 +842,25 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 				II.push_back(i);
 		}
 	}
-
+	ISorder = get_ISorder(SS, II);
 
 	while (II.size() != 0)
 	{
-		for (auto i : SS)
+		for (auto t : II)
 		{
-			Server ai = A[i];
-			double RBi = get_RB(i, x2);
-			for (auto t : II)
+			Server at = A[t];
+			double sumBRt = get_sumBR(t, x2);
+			for (auto i : ISorder[t])
 			{
-				Server at = A[t];
-				double sumBRt = get_sumBR(t, x2);
+				Server ai = A[i];
+				double RBi = get_RB(i, x2);
+
 				if (RBi >= sumBRt)
 				{
+					// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
+					for (int j = 0; j < n; j++)
+						x1[t][j] = x2[t][j];
+
 					vector<int> src;
 					src.push_back(t);
 					reroute(allu, src, i, x2);
@@ -838,9 +868,34 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 					// 在II中删除t
 					auto iter = std::remove(II.begin(), II.end(), t);
 					II.erase(iter, II.end());
+					break;
 				}
 			}
 		}
+		//for (auto i : SS)
+		//{
+		//	Server ai = A[i];
+		//	double RBi = get_RB(i, x2);
+		//	for (auto t : II)
+		//	{
+		//		Server at = A[t];
+		//		double sumBRt = get_sumBR(t, x2);
+		//		if (RBi >= sumBRt)
+		//		{
+		//			// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
+		//			for (int j = 0; j < n; j++)
+		//				x1[t][j] = x2[t][j];
+
+		//			vector<int> src;
+		//			src.push_back(t);
+		//			reroute(allu, src, i, x2);
+		//			CC[i].push_back(t);
+		//			// 在II中删除t
+		//			auto iter = std::remove(II.begin(), II.end(), t);
+		//			II.erase(iter, II.end());
+		//		}
+		//	}
+		//}
 
 		if (II.size() == 0)
 			break;
@@ -957,9 +1012,37 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 	return CC;
 }
 
-Result Cover::SFS(double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC)
+void Cover::SFS(double** x1, double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC)
 {
-	return Result();
+	// 参数：
+	// x1, y1		暂存某个请求被聚类到某个重球的cluster之前的x值
+	// x2, y2		COS之后的x，y值
+	// x3, y3		SFS之后的x，y值
+
+	for (int i = 0; i < m; i++)
+	{
+		y3[i] = y2[i];
+		for (int j = 0; j < n; j++)
+			x3[i][j] = x2[i][j];
+	}
+	vector<int> allu = all_u;
+	vector<int> allA;			// 所有服务器id集合
+	vector<int> SS;				// superior server的集合
+	vector<int> II;				// inferior server的集合
+	for (int i = 0; i < m; i++)
+	{
+		if (y3[i] > 0)
+		{
+			allA.push_back(i);
+			if (y3[i] == 1)
+				SS.push_back(i);
+			else if (y2[i] <= alpha)
+				II.push_back(i);
+		}
+	}
+
+
+
 }
 
 void Cover::construct_I_j(vector<int>& I_j, double sum_I, double* y)
@@ -1047,6 +1130,74 @@ int Cover::get_max_xBR(int t, vector<int>& At, double RBt, double** x)
 
 
 	return max_u;
+}
+
+map<int, vector<int>> Cover::get_ISorder(vector<int>& SS, vector<int>& II)
+{
+	// inferior server 到各个 superior server距离升序排序，保存序号
+	// ISorder[2] = {3, 5, 6, 1} 的含义是，id为2的服务器，由近及远的无人机id为3,5,6,1
+
+	map<int, vector<int>> ISorder;
+
+	// 初始化
+	for (auto i : II)
+		ISorder[i] = SS;
+
+	map<int, vector<int>>::iterator it = ISorder.begin();
+	/*cout << "ISorder:\n";
+	it = ISorder.begin();
+	while (it != ISorder.end())
+	{
+		cout << "a" << it->first << ": ";
+		for (auto i : it->second)
+			cout << i << ' ';
+		cout << '\n';
+		it++;
+	}*/
+
+	// cout << "过程：\n";
+	it = ISorder.begin();
+	while (it != ISorder.end())
+	{
+		int i = it->first;
+		// cout << "a" << i << ": "; 
+		Server ai = A[i];
+		
+		for (int ss = 0; ss < it->second.size(); ss++)
+		{
+			int clo_s = ss;
+			double clo_d = ai.cal_distance(A[it->second[clo_s]]);
+			// cout << '\t' << 'd' << it->second[clo_s] << ": " << clo_d << '\n';
+			for (int ss2 = ss + 1; ss2 < it->second.size(); ss2++)
+			{
+
+				double d = ai.cal_distance(A[it->second[ss2]] );
+				if (d < clo_d)
+				{
+					clo_s = ss2;
+					clo_d = d;
+				}
+			}
+
+			int temp = it->second[ss];
+			it->second[ss] = it->second[clo_s];
+			it->second[clo_s] = temp;
+		}
+		
+		it++;
+	}
+
+	/*cout << "ISorder:\n";
+	it = ISorder.begin();
+	while (it != ISorder.end())
+	{
+		cout << "a" << it->first << ": ";
+		for (auto i : it->second)
+			cout << i << ' ';
+		cout << '\n';
+		it++;
+	}*/
+	return ISorder;
 }
 
 map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, double cl)
