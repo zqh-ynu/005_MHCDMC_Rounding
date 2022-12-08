@@ -116,7 +116,8 @@ public:
 	}
 	void init(int** xx, int* yy, int mm, int nn) { x = xx; y = yy; m = mm; n = nn; }
 
-	void int_(double** xx, double* yy);
+	template<class TT, class T>
+	void init_(TT xx, T yy);
 	// 写将x，y结果中被选择的UAV，那个无人机覆盖那个用户输出到文件
 	void write_result_file(string fname);
 };
@@ -138,6 +139,7 @@ public:
 	IloEnv env_IP;
 	IloEnv env_LP;
 
+	double** NI = nullptr;
 	double** d = nullptr;	// 记录任意用户与服务器之间的距离
 	double** L = nullptr;	// path loss
 	double** SINR = nullptr;	// SINR
@@ -158,6 +160,8 @@ public:
 	void cal_SINR();		// 计算信噪比
 	void cal_min_r();		// 计算无人机最小半径
 	void cal_ep();			// 根据epsilon_p和epsilon_SINR计算epsilon
+	template <class T>
+	void cal_NI(T y);		// 根据被选中的无人机，计算所有的
 
 	void print_all_usersServers();	// 输出所有用户与服务器
 	template <class T>
@@ -170,12 +174,13 @@ public:
 	void print_CC(map<int, Cluster>& CC);
 
 	void LP(double** x0, double* y0);	// 线性规划
-	void IP();	// 整数规划
+	void IP(int** x0, int* y0);	// 整数规划
 	
 	void GBTSR();	// Grid-based three-step rounding approximation algorithm
-	void DSIS(double** x, double* y, double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
+	void DSIS(double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
+	void mergeII(double** x, double* y, double** x1, double* y1);
 	map<int, Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
-	void SFS(double** x1, double** x2, double* y2, double** x3, double* y3, vector<Cluster>& CC);												// Selecting the Final Servers(SFS)
+	void SFS(double** x1, double** x2, double* y2, double** x3, double* y3, map<int, Cluster>& CC);												// Selecting the Final Servers(SFS)
 
 
 	// template<class TT>
@@ -188,7 +193,7 @@ public:
 	double get_RB(int i, T x);		// 计算无人机ai的剩余容量
 	double get_BRmin(vector<int>& Ai);
 	int get_max_xBR(int t, vector<int>& At, double RBt, double** x);		// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
-	
+	bool is_contain(vector<int>& At, vector<int>& Ai, int i);	// 判断At是否是Ai的子集，是返回true
 
 	map<int, vector<int>> construct_GG(vector<int>& I, Point&cp, double L, double cl);		// 构造
 	void merge_GG(map<int, vector<int>>& GG, double cl);

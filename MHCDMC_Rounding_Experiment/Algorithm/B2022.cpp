@@ -21,7 +21,7 @@ int main()
 
 void one_example()
 {
-    string fname = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Generate_Points\\data\\example\\oneInstance.txt";
+    string fname = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Generate_Points\\data\\example\\oneInstance50.txt";
     Cover cover;
     cover.initial(fname);
     // cover.print_all();

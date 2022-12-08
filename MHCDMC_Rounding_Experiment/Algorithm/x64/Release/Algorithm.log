@@ -1,13 +1,8 @@
-﻿  predefine.cpp
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(310,18): warning C4101: “end_”: 未引用的局部变量
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(547,16): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(552,20): warning C4244: “=”: 从“IloNum”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(438,18): warning C4101: “end_”: 未引用的局部变量
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1216,12): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(1313,29): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-  正在生成代码
-  2 of 821 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    2 functions had inline decision re-evaluated but remain unchanged
-  已完成代码的生成
-  Algorithm.vcxproj -> D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\x64\Release\Algorithm.exe
+﻿  B2022.cpp
+  predefine.cpp
+D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Algorithm\predefine.cpp(199,1): fatal  error C1001: 内部编译器错误。
+  (编译器文件“D:\a\_work\1\s\src\vctools\Compiler\CxxFE\sl\p1\c\error.h”，第 1206 行)
+   要解决此问题，请尝试简化或更改上面所列位置附近的程序。
+  如果可以，请在此处提供重现步骤: https://developercommunity.visualstudio.com
+  请选择 Visual C++
+  “帮助”菜单上的“技术支持”命令，或打开技术支持帮助文件来获得详细信息。
