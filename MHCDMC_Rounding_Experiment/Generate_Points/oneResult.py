@@ -3,11 +3,11 @@ from draw_points.DrawPoints import draw_all_elements
 from draw_points.DrawPoints import draw_all_points
 
 
-def oneResult(infname, outfname):
+def readResult(infname, outfname):
     # infname       源数据文件绝对路径
     # outfname      结果数据文件绝对路径
-    U=[]
-    A=[]
+    U=[]        # [[x, y, BR], ..., ]
+    A=[]        # [[x, y, BW, isSelected], ..., ]
 
     # 读取infname
     with open(infname, encoding='utf-8') as file_in:

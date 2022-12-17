@@ -2,86 +2,63 @@ import os.path
 
 from generate_points.GenerateLocation import generateUserLocationRandomly
 from generate_points.GenerateLocation import generateServerLocationByNeibor
+from generate_points.GenerateLocation import generateServerLocationAverage
 from generate_points.GenerateRequestAndCapacity import generateUserRequest
 from generate_points.GenerateRequestAndCapacity import generateServerCapacity
 from draw_points.DrawPoints import draw_all_points, draw_all_elements
+from draw_points.denggaoxian import draw_contour
 from PrintToFile.PrintDataToFile import print_data_to_file
-from oneResult import  oneResult
-
-def one_instance20():
-    n = 20
-    len = 2000
-    r = 500
-    U_loc = generateUserLocationRandomly(n, len)
-    A_loc = generateServerLocationByNeibor(U_loc, r)
+from oneResult import readResult
 
 
-    U = generateUserRequest(U_loc, 1, 10)
-    A = generateServerCapacity(A_loc, 20)
+def one_instance(n, Lenth, r, fname, Utype=1, Atype=1, l=200):
+    """
+    根据参数，生成问题实例
 
-    # 获取项目路径
-    ffname = os.path.abspath(__file__)   # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)      # 当前文件的父文件夹绝对路径
-    ppath = os.path.dirname(fpath)      # 当前文件的祖文件夹绝对路径，即项目路径
+    :param n: 用户数
+    :param Lenth: 用户分布区域长度
+    :param r: 无人机默认覆盖半径
+    :param fname: 该实例的文件绝对路径
+    :param Utype: 生成用户分布的类型, 1为随机分布，2为聚集分布。默认为1
+    :param Atype: 生成无人机分布的类型，1为均匀分布，2为交点分布。默认为1
+    :param l: 无人机以均匀分布时的间隔距离
+    :return:
+    """
 
-    fname = ppath + "\\data\\example\\oneInstance.txt"
-    print(fname)
-    print_data_to_file(U, A, fname)
-    pfname = ppath + "\\data\\example\\fig\\oneInstance.pdf"
-    draw_all_points(U_loc, A_loc, r, pfname)
-    pass
+    if Utype == 1:
+        U_loc = generateUserLocationRandomly(n, Lenth)
+    elif Utype == 2:
+        U_loc = generateUserLocationRandomly(n, Lenth)
+    else:
+        U_loc = generateUserLocationRandomly(n, Lenth)
 
-def oneResult20(fname):
-    # 获取项目路径
-    ffname = os.path.abspath(__file__)  # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
+    if Atype == 1:
+        A_loc = generateServerLocationAverage(Lenth, l)
+    elif Atype == 2:
+        A_loc = generateServerLocationByNeibor(U_loc, r)
+    else:
+        A_loc = []
 
-    fname_in = fpath + "\\data\\example\\oneInstance.txt"
-    fname_out = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\" + fname
-    A, U = oneResult(fname_in, fname_out)
-    print("u5" + str(U[5]))
-    print("u10" + str(U[10]))
-    print("u12" + str(U[12]))
-    print('m=%d, n=%d' % (len(A), len(U)))
-    for a in A:
-        print(a)
-    print('------------------------------------')
-    for u in U:
-        print(u)
-    print('------------------------------------')
-    draw_all_elements(U, A, 500, fpath + "\\data\\example\\fig\\" + fname[:-4] + ".pdf", 1)
-    # draw_all_points(U, A, 500, fpath + "\\data\\example\\fig\\oneInstance.pdf")
-
-def one_instance200():
-    n = 200
-    len = 2000
-    r = 500
-    U_loc = generateUserLocationRandomly(n, len)
-    A_loc = generateServerLocationByNeibor(U_loc, r)
-
-
-    U = generateUserRequest(U_loc, 1, 10)
+    U = generateUserRequest(U_loc)
     A = generateServerCapacity(A_loc, 50)
 
-    # 获取项目路径
-    ffname = os.path.abspath(__file__)   # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)      # 当前文件的父文件夹绝对路径
-
-    fname = fpath + "\\data\\example\\oneInstance200.txt"
-    print(fname)
     print_data_to_file(U, A, fname)
-    pfname = fpath + "\\data\\example\\fig\\oneInstance200.pdf"
-    # draw_all_points(U_loc, A_loc, r, pfname)
-    pass
 
-def oneResult200():
+
+def oneResult(fname_in, fname_out, fpath, rfile, n):
+    """
+    根据源数据与结果画图
+
+    :param fname_in: 源数据
+    :param fname_out: 结果数据
+    :param fpath: python项目目录：D:\Myschool\graduate_school\02Graduate\Research\My paper\2_Papers\005_MHCDMC_Rounding\MHCDMC_Rounding_Experiment\Generate_Points\
+    :param rfile: 结果数据目录
+    :param n: 用户数
+    :return: null
+    """
     # 获取项目路径
-    ffname = os.path.abspath(__file__)  # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
 
-    fname_in = fpath + "\\data\\example\\oneInstance200.txt"
-    fname_out = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\oneresult200.txt"
-    A, U = oneResult(fname_in, fname_out)
+    A, U = readResult(fname_in, fname_out)
     print("u5" + str(U[5]))
     print("u10" + str(U[10]))
     print("u12" + str(U[12]))
@@ -92,62 +69,27 @@ def oneResult200():
     for u in U:
         print(u)
     print('------------------------------------')
-    draw_all_elements(U, A, 500, fpath + "\\data\\example\\fig\\oneResult200.pdf")
-    # draw_all_points(U, A, 500, fpath + "\\data\\example\\fig\\oneInstance200.pdf")
 
-# oneResult20("example1\\BW30LP.txt")
-# oneResult20("example1\\BW30DSIS.txt")
-# oneResult20("example1\\BW30COS.txt")
-
-def one_instance50():
-    n = 50
-    len = 2000
-    r = 500
-    U_loc = generateUserLocationRandomly(n, len)
-    A_loc = generateServerLocationByNeibor(U_loc, r)
-
-
-    U = generateUserRequest(U_loc, 1, 10)
-    A = generateServerCapacity(A_loc, 50)
-
-    # 获取项目路径
-    ffname = os.path.abspath(__file__)   # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)      # 当前文件的父文件夹绝对路径
-    ppath = os.path.dirname(fpath)      # 当前文件的祖文件夹绝对路径，即项目路径
-
-    fname = ppath + "\\data\\example\\oneInstance" + str(n) + ".txt"
-    print(fname)
-    print_data_to_file(U, A, fname)
-    pfname = ppath + "\\data\\example\\fig\\oneInstance" + str(n) + ".pdf"
-    draw_all_points(U_loc, A_loc, r, pfname)
-    pass
-
-def oneResult50(fname):
-    # 获取项目路径
-    ffname = os.path.abspath(__file__)  # 当前文件绝对路径
-    fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
-
-    n = 50
-
-    fname_in = fpath + "\\data\\example\\oneInstance" + str(n) + ".txt"
-    fname_out = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\" + fname
-    A, U = oneResult(fname_in, fname_out)
-    print("u5" + str(U[5]))
-    print("u10" + str(U[10]))
-    print("u12" + str(U[12]))
-    print('m=%d, n=%d' % (len(A), len(U)))
-    for a in A:
-        print(a)
-    print('------------------------------------')
-    for u in U:
-        print(u)
-    print('------------------------------------')
-    draw_all_elements(U, A, 500, fpath + "\\data\\example\\fig\\" + fname[:-4] + ".pdf", 1)
+    draw_all_elements(U, A, 500, fpath + "\\data\\example\\fig\\" + rfile[:-4] + ".pdf", 1)
     draw_all_points(U, A, 500, fpath + "\\data\\example\\fig\\oneInstance.pdf")
+    A_loc = []
+    for a in A:
+        if a[3] == 1:
+            A_loc.append(a)
+    draw_contour(A_loc, U, 500, 2000, fpath + "\\data\\example\\fig\\" + rfile[:-4] + "d.pdf")
 
-# oneResult50("n50BW50\\rLP.txt")
-# oneResult50("n50BW50\\rDSIS.txt")
-# oneResult50("n50BW50\\rCOS.txt")
-oneResult50("n50BW50\\rSFS.txt")
-# oneResult50("n50BW50\\rIP.txt")
-# oneResult50("n50BW50\\rDSIS_MII.txt")
+
+def test():
+    # 获取项目路径
+    ffname = os.path.abspath(__file__)  # 当前文件绝对路径
+    fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
+    fname = fpath + "\\data\\example\\UAV_AVEn200l200.txt"
+    print(fname)
+    # one_instance(200, 2000, 400, fname)
+
+    rfile = "test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_IP.txt"
+    fname_in = fname
+    fname_out = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\" + rfile
+    print(fname_in)
+    print(fname_out)
+    oneResult(fname_in, fname_out, fpath, rfile, 200)

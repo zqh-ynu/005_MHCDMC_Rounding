@@ -24,19 +24,20 @@ const double f = 2e9;		// 载波评率 4 Ghz
 const double c = 299792458;			// 光速 m/s
 const double eta_LOS = 1;	// shadow fading loss of LoS, 1 dB
 const double N0 = -174;		// 背景噪声 −174 dBm/Hz    总功率 = -174 + 10log(1Mhz) = -114
-static double N_I = 36;				// 干扰噪声，36dB  之后可能会更新
-const double SINR_min = -7;	// 最小信噪比 -7 dBm
-const double power = 33;	// 无人机信号发射功率 33dBm
+static double N_I = -52;				// 干扰噪声，36dB  之后可能会更新
+const double SINR_min = 0;	// 最小信噪比 -7 dBm
+const double power = 40;	// 无人机信号发射功率 33dBm
 const double alpha = 0.5;
-const double h = 300;		// 无人机飞行高度
+const double h = 100;		// 无人机飞行高度
+const int E = 1e5;
 // const double BW = 20 * 10e6;	// 无人机的带宽容量
 
 union xu {
-	double** d;
+	double** dh;
 	int** i;
 };
 union yu {
-	double* d;
+	double* dh;
 	int* i;
 };
 
@@ -96,30 +97,44 @@ public:
 class Result
 {
 public:
-	int** x = nullptr;
-	int* y = nullptr;
+	double ** x = nullptr;
+	double* y = nullptr;
 	int m = 0;
 	int n = 0;
 	int chosen_m = 0;
 
 	Result() {}
-	Result(int** xx, int* yy, int mm, int nn) { x = xx; y = yy; m = mm; n = nn; }
+	template<class TT, class T>
+	Result(TT xx, T yy, int mm, int nn) {
+		m = mm; n = nn;
+		for (int i = 0; i < m; i++)
+		{
+			y[i] = yy[i];
+			for (int j = 0; j < n; j++)
+				x[i][j] = xx[i][j];
+		}
+	}
 	Result(int mm, int nn) {
 		m = mm;
 		n = nn;
-		x = new int* [m];
-		y = new int[m];
+		x = new double* [m];
+		y = new double[m];
 		for (int i = 0; i < m; i++)
 		{
-			x[i] = new int[m];
+			x[i] = new double[n];
+			y[i] = 0;
+			for (int j = 0; j < n; j++)
+				x[i][j] = 0;
 		}
+
 	}
-	void init(int** xx, int* yy, int mm, int nn) { x = xx; y = yy; m = mm; n = nn; }
 
 	template<class TT, class T>
 	void init_(TT xx, T yy);
 	// 写将x，y结果中被选择的UAV，那个无人机覆盖那个用户输出到文件
 	void write_result_file(string fname);
+	void write_cplex_file(string fname);
+
 };
 
 class Cover
@@ -131,16 +146,17 @@ public:
 	vector<int> all_u;			// 一个0~n-1的数组，记录所有用户id
 	vector<Server> A;
 	Result result;
-	double ep_p = 1.0/33;		// p=33dBm,p'=34dBm
-	double ep_SINR = - 1.0/7;	// SINR_min=-7dB, SINR_min'=-8dB
+	double ep_p = 1.0/6;		// p=33dBm,p'=34dBm
+	double ep_SINR = -1;	// SINR_min=-7dB, SINR_min'=-8dB
 	double ep = 0;
 	double r = 0;				// 无人机在地面的覆盖半径
 
-	IloEnv env_IP;
-	IloEnv env_LP;
+
+
 
 	double** NI = nullptr;
-	double** d = nullptr;	// 记录任意用户与服务器之间的距离
+	double** dis_h = nullptr;	// 记录任意用户与服务器之间的距离，考虑高度h
+	double** dis = nullptr;	// 记录任意用户与服务器之间的水平距离
 	double** L = nullptr;	// path loss
 	double** SINR = nullptr;	// SINR
 	double** Gp = nullptr;		// G*p = p - L
@@ -154,6 +170,8 @@ public:
 	~Cover() { }
 	void initial(string fname);		// 根据fname文件中的数据初始化实例
 	void read_file(string fname);	// 读取fname文件中的数据
+	template<class TT, class T>
+	void read_cplex_file(string fame, TT x, T y);
 
 	void cal_d();			// 计算所有用户与无人机之间的距离
 	void cal_L();			// 计算路径损耗
@@ -176,7 +194,7 @@ public:
 	void LP(double** x0, double* y0);	// 线性规划
 	void IP(int** x0, int* y0);	// 整数规划
 	
-	void GBTSR();	// Grid-based three-step rounding approximation algorithm
+	void GBTSR(int isLP = 1);	// Grid-based three-step rounding approximation algorithm
 	void DSIS(double** x1, double* y1);						// Determining Superior and Inferior Servers (DSIS)
 	void mergeII(double** x, double* y, double** x1, double* y1);
 	map<int, Cluster> COS(double** x1, double* y1, double** x2, double* y2);						// Clusting of Servers(CoS)
@@ -199,6 +217,7 @@ public:
 	void merge_GG(map<int, vector<int>>& GG, double cl);
 
 	map<int, vector<int>> get_ISorder(vector<int>& SS, vector<int>& II);
+	map<int, vector<int>> get_SIorder(vector<int>& SS, vector<int>& II);
 };
 
 

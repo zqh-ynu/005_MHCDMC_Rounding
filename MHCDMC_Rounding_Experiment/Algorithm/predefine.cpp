@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 
+// 计算当前对象与参数p之间的距离
 double Point::cal_distance(const Point& p)
 {
 	const double X1 = this->X;
@@ -10,10 +11,11 @@ double Point::cal_distance(const Point& p)
 	const double X2 = p.X;
 	const double Y2 = p.Y;
 
-	double dis = sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2));
-	return dis;
+	double d = sqrt(pow(X1 - X2, 2) + pow(Y1 - Y2, 2));
+	return d;
 }
 
+// User类的构造函数，初始化坐标(x, y)，ID以及带宽需求BR
 User::User(double lx, double ly, int id, int br)
 {
 	X = lx;
@@ -22,11 +24,13 @@ User::User(double lx, double ly, int id, int br)
 	BR = br;
 }
 
+// 输出当前用户对象的信息
 void User::print_user()
 {	
 	cout << "u" << ID << ":(" << X << ", " << Y << "), " << BR;
 }
 
+// Server类的构造函数，初始化坐标(x, y)，ID以及带宽容量BW
 Server::Server(double lx, double ly, int id, int bw)
 {
 	X = lx;
@@ -35,54 +39,63 @@ Server::Server(double lx, double ly, int id, int bw)
 	BW = bw;
 }
 
+// 输出当前服务器对象的信息
 void Server::print_server()
 {
 	cout << "a" << ID << ":(" << X << ", " << Y << "), " << BW;
 }
 
+// 计算所有用户与服务器之间的距离 dis_h, dis
 void Cover::cal_d()
 {
 	for (int i = 0; i < m; i++)
 	{
 		for (int j = 0; j < n; j++)
 		{
-			d[i][j] = sqrt(pow(A[i].X - U[j].X, 2) + pow(A[i].Y - U[j].Y, 2) + 300 * 300);
+			dis_h[i][j] = sqrt(pow(A[i].X - U[j].X, 2) + pow(A[i].Y - U[j].Y, 2) + h * h);
+			dis[i][j] = sqrt(pow(A[i].X - U[j].X, 2) + pow(A[i].Y - U[j].Y, 2));
 		}
 	}
 }
 
+// 计算所有用户与服务器之间的路径损益 L
 void Cover::cal_L()
 {
 	double eta = 20 * log10((4 * PI * f) / c) + eta_LOS;
 	for (int i = 0; i < m; i++)
 	{
 		for (int j = 0; j < n; j++)
-			L[i][j] = 20 * log10(d[i][j]) + eta;
+			L[i][j] = 20 * log10(dis_h[i][j]) + eta;
 	}
 }
 
+// 计算所有用户与服务器之间的信噪比 SINR
 void Cover::cal_SINR()
 {
 	// 
 	// double N = N0 + 10 * log10(A[0].BW * 10e6) + N_I;
-	double N = N0 + 10 * log10(20 * 10e6);
-	for (int i = 0; i < m; i++)
+	
+	// cout << "N =  " << N << '\n';
+	for (int j = 0; j < n; j++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int i = 0; i < m; i++)
 		{
 			SINR[i][j] = 0;
-			SINR[i][j] = A[i].p - L[i][j] - N - NI[i][j];
+			SINR[i][j] = A[i].p - L[i][j] - NI[i][j];
 		}
 	}
+	
 }
 
+// 根据已知数据，计算无人机的最打覆盖半径
 void Cover::cal_min_r()
 {
 	//double BW = A[0].BW * 10e6;
-	double BW = 20 * 10e6;
+	double BW = 5 * E;
 	double eta = 20 * log10((4 * PI * f) / c) + eta_LOS;
-	double N = N0 + 10 * log10(BW) + 36;
-	double zhishu = (power - SINR_min - eta - N) / 20;
+	double N = N0 + 10 * log10(BW / 10);
+	double NN = 10 * log10(pow(10, N / 10) + pow(10, N_I / 10));
+	double zhishu = (power - SINR_min - eta - NN) / 20;
 	double R = pow(10, zhishu);
 	r = sqrt(pow(R, 2) - pow(h, 2));
 
@@ -92,18 +105,22 @@ void Cover::cal_min_r()
 	cout << "r = " << r << '\n';
 }
 
+// 根据功率p与SINR_min的扩张系数，计算无人机半径的扩张系数 ep
 void Cover::cal_ep()
 {
-	double zhishu = (power * ep_p + SINR_min * ep_SINR) / 20;
+	double zhishu = (power * ep_p + SINR_min - ep_SINR) / 20;
 
 	ep = pow(10, zhishu) - 1;
+	cout << "ep = " << ep << '\n';
 }
 
+// 根据文件fname来初始化一个Cover对象
 void Cover::initial(string fname)
 {
 	read_file(fname);
 
-	d = new double* [m];
+	dis_h = new double* [m];
+	dis = new double* [m];
 	NI = new double* [m];
 	L = new double* [m];
 	SINR = new double* [m];
@@ -111,7 +128,8 @@ void Cover::initial(string fname)
 
 	for (int i = 0; i < m; i++)
 	{
-		d[i] = new double [n];
+		dis_h[i] = new double [n];
+		dis[i] = new double [n];
 		NI[i] = new double [n];
 		L[i] = new double [n];
 		SINR[i] = new double [n];
@@ -120,7 +138,8 @@ void Cover::initial(string fname)
 		for (int j = 0; j < n; j++)
 		{
 			NI[i][j] = N_I;
-			d[i][j] = 0;
+			dis_h[i][j] = 0;
+			dis[i][j] = 0;
 			L[i][j] = 0;
 			SINR[i][j] = 0;
 			Gp[i][j] = 0;
@@ -131,13 +150,19 @@ void Cover::initial(string fname)
 	for (int j = 0; j < n; j++)
 		all_u.push_back(j);
 
+	cout << "initial:\t";
+	cout << "m = " << m << ", n = " << n << endl;
 	cal_d();
 	cal_L();
 	cal_SINR();
 	cal_min_r();
 	cal_ep();
+
+	cout << "initial:\t";
+	cout << "m = " << m << ", n = " << n << endl;
 }
 
+// 从fname文件中读取m，n以及点坐标等信息
 void Cover::read_file(string fname)
 {
 	string data;
@@ -167,37 +192,91 @@ void Cover::read_file(string fname)
 		getline(infpoint, data);
 		istringstream istr3(data);
 		istr3 >> x >> y >> BR;
-		User user(x, y, j, BR);
+		User user(x, y, j, BR / 2.5);
 		U.push_back(user);
 	}
+	
 }
 
+template<class TT, class T>
+void Cover::read_cplex_file(string fname, TT x, T y)
+{
+	int chosen_m;
+	cout << fname << '\n';
+	string data;
+	ifstream infpoint;
+	infpoint.open(fname);
+	// 读取m, n
+	getline(infpoint, data);
+	istringstream istr1(data);
+	istr1 >> chosen_m;
+	istr1 >> n;
+
+	for (int ii = 0; ii < chosen_m; ii++) {
+		int i = 0;
+		getline(infpoint, data);
+		istringstream istr2(data);
+		cout << data << '\n';
+		istr2 >> i;
+		istr2 >> y[i];
+
+		getline(infpoint, data);
+		istringstream istr3(data);
+		for (int j = 0; j < n; j++)
+			istr3 >> x[i][j];
+	}
+	
+	infpoint.close();
+}
+
+// 根据数组y来计算每个用户的干扰噪声
 template<class T>
 void Cover::cal_NI(T y)
 {
-	vector<int> S;				// 被选中的服务器
-	int* uBs = new int[n]; 		// 每个用户被离他最近的服务器服务
 
+	
+	// cout << "N = " << N << '\n';
+	vector<int> S;				// 被选中的服务器
+	int* uBs = new int [n]; 		// 每个用户被离他最近的服务器服务
+
+	cout << '\n';
 	for (int i = 0; i < m; i++)
 		if (y[i] > 0)
+		{
 			S.push_back(i);
+			//cout << i << ' ';
+		}
+
+	//cout << '\n';
+	
+
 	for (int j = 0; j < n; j++)
 	{
-		int a = S[0];
-		User uj = U[j];
-		double min_d = uj.cal_distance(A[a])
-			for (auto i : S)
-			{
-				if (min_d > uj.cal_distance(A[i]))
+		double N = N0 + 10 * log10(U[j].BR * E);
+		//cout << "N = " << N << '\n';
+		for (int i = 0; i < m; i++)
+		{
+			double num = pow(10, N / 10.0);
+			// cout << "num = " << num << '\n';
+			//cout << "i  = " << i << ", j = " << j << "\n";
+			for (auto a : S)
+				if (a != i)
 				{
-					min_d = uj.cal_distance(A[i]);
-					a = i;
+					//cout << "\ta" << a << ": " << (A[a].p - L[a][j]) / 10.0 << '\n';
+					//cout << "\tpow a" << a << ": " << pow(10, (A[a].p - L[a][j]) / 10.0) << '\n';
+					num += pow(10, (A[a].p - L[a][j]) / 10.0);
 				}
-			}
-		uBs[j] = a;
+
+			//cout << "num = " << num << '\n';
+			NI[i][j] = 10 * log10(num);
+			//cout << "N[i][j] = " << NI[i][j] << '\n';
+		}
 	}
 }
 
+
+
+// 输出所有用户与服务器信息
 void Cover::print_all_usersServers()
 {
 	cout << "UAV:\n";
@@ -219,9 +298,7 @@ void Cover::print_all_usersServers()
 	}
 }
 
-
-
-
+// 输出名为name的二维数组arr
 template <class T>
 void Cover::print_array(T arr, string name)
 {
@@ -235,6 +312,7 @@ void Cover::print_array(T arr, string name)
 	cout << '\n';
 }
 
+// 将算法的x，y结果输出
 template<class TT, class T>
 void Cover::print_cplex(TT x, T y)
 {
@@ -267,6 +345,7 @@ void Cover::print_cplex(TT x, T y)
 	}
 }
 
+// 根据当前x,y状态，输出被选中服务器的剩余容量
 template<class TT, class T>
 void Cover::print_RB(TT x, T y, int is_y)
 {
@@ -295,6 +374,7 @@ void Cover::print_RB(TT x, T y, int is_y)
 	cout << '\n';
 }
 
+// 根据当前x状态，输出当前服务器i的已用容量
 template<class T>
 double Cover::get_sumBR(int i, T x)
 {
@@ -304,6 +384,7 @@ double Cover::get_sumBR(int i, T x)
 	return sum;
 }
 
+// 根据当前x状态，输出服务器i的可用容量
 template<class T>
 double Cover::get_RB(int i, T x)
 {
@@ -321,14 +402,16 @@ double Cover::get_RB(int i, T x)
 //	return sum
 //}
 
+// 输出当前对象对应的所有数据，包括 用户与服务器信息， 距离dis_h，路径损益L，信噪比SINR 
 void Cover::print_all()
 {
 	print_all_usersServers();
-	print_array(d, "d");
+	print_array(dis_h, "d");
 	print_array(L, "L");
 	print_array(SINR, "SINR");
 }
 
+// 输出Cluster的集合 CC
 void Cover::print_CC(map<int, Cluster>& CC)
 {
 	map<int, Cluster>::iterator it = CC.begin();
@@ -343,10 +426,11 @@ void Cover::print_CC(map<int, Cluster>& CC)
 	}
 }
 
+
 typedef IloArray <IloNumVarArray> IloNumVarArray2;
 typedef IloArray <IloNumVarArray2> IloNumVarArray3;
-
 ILOSTLBEGIN
+// 线性规划
 void Cover::LP(double** x0, double* y0)
 {
 	clock_t start_, end_;
@@ -355,7 +439,7 @@ void Cover::LP(double** x0, double* y0)
 	
 	// IloEnv env_LP;
 	double solution_value = 0;
-
+	IloEnv env_LP;
 	try {
 		IloModel model(env_LP);
 
@@ -475,6 +559,7 @@ void Cover::LP(double** x0, double* y0)
 }
 
 ILOSTLBEGIN
+//整数规划
 void Cover::IP(int** x0, int* y0)
 {
 	
@@ -484,7 +569,7 @@ void Cover::IP(int** x0, int* y0)
 
 	// IloEnv env_IP;
 	double solution_value = 0;
-
+	IloEnv env_IP;
 	try {
 		IloModel model(env_IP);
 
@@ -600,7 +685,8 @@ void Cover::IP(int** x0, int* y0)
 
 }
 
-void Cover::GBTSR()
+// 我们的算法入口
+void Cover::GBTSR(int isLP)
 {
 	double** x;
 	double** x1;
@@ -629,32 +715,46 @@ void Cover::GBTSR()
 		x2[i] = new double[n];
 		x3[i] = new double[n];
 		x4[i] = new int[n];
+
+		y[i] = 0;
+		for (int j = 0; j < n; j++)
+			x[i][j] = 0;
 	}
 
+	cout << "GBTSR:\t";
+	cout << "m = " << m << ", n = " << n << endl;
+	
 	cout << "\n===========================LP=============================\n";
-	LP(x, y);
-	print_RB(x, y);
-	print_cplex(x, y);
-	result.init_(x, y);
+	if (isLP == 1)
+	{
+		LP(x, y);
+		result.init_(x, y);
+		result.write_cplex_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_r1LP.txt");
+	}
+	else
+		read_cplex_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_r1LP.txt", x, y);
+	//print_RB(x, y);
+	//print_cplex(x, y);
+	
 	//result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rLP.txt");
 	
 
 	cout << "\n===========================MII=============================\n";
 
-	for (int i = 0; i < m; i++)
+	/*for (int i = 0; i < m; i++)
 	{
 		y1[i] = y[i];
 		for (int j = 0; j < n; j++)
 			x1[i][j] = x[i][j];
-	}
-	/*mergeII(x, y, x1, y1);
-	print_cplex(x1, y1);
-	result.init_(x1, y1);*/
+	}*/
+	mergeII(x, y, x1, y1);
+	//print_cplex(x1, y1);
+	result.init_(x1, y1);
 	//result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rDSIS_MII.txt");
 
 	cout << "\n===========================DSIS=============================\n";
 	DSIS(x1, y1);
-	print_RB(x1, y1);
+	//print_RB(x1, y1);
 	print_cplex(x1, y1);
 	result.init_(x1, y1);
 	//result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rDSIS.txt");
@@ -663,7 +763,7 @@ void Cover::GBTSR()
 	cout << "\n===========================COS=============================\n";
 	map<int, Cluster> CC = COS(x1, y1, x2, y2);
 	print_CC(CC);
-	print_RB(x2, y2);
+	//print_RB(x2, y2);
 	print_cplex(x2, y2);
 	result.init_(x2, y2);
 	//result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rCOS.txt");
@@ -676,11 +776,14 @@ void Cover::GBTSR()
 	result.init_(x3, y3);
 	// result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rSFS.txt");
 
-	cout << "\n===========================IP=============================\n";
+	cal_NI(y3);
+	//print_array(NI, "NI");
+
+	/*cout << "\n===========================IP=============================\n";
 	IP(x4, y4);
 	print_cplex(x4, y4);
 	result.init_(x4, y4);
-	//result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\n50BW50\\rIP.txt");
+	result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_IP.txt");*/
 
 
 	for (int i = 0; i < m; i++)
@@ -699,6 +802,7 @@ void Cover::GBTSR()
 	delete[] y3;
 }
 
+// 算法第一步，确定inferior 和superior servers
 void Cover::DSIS(double** x1, double* y1)
 {
 	vector<int> allA;			// 记录y非零的服务器id
@@ -829,6 +933,8 @@ void Cover::DSIS(double** x1, double* y1)
 				cout << '\n';
 				it++;
 			}
+			// 将GG中，只有一个服务器的G合并到能被合并的G
+			cl = 500;
 			merge_GG(GG, cl);
 			it = GG.begin();
 			itEnd = GG.end();
@@ -873,6 +979,7 @@ void Cover::DSIS(double** x1, double* y1)
 		y1[i] = 1;
 }
 
+// 算法第二步，聚类inferior服务器
 map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 {
 	for (int i = 0; i < m; i++)
@@ -888,6 +995,7 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 	// inferior server 到各个 superior server距离升序排序，保存序号
 	// ISorder[2] = {3, 5, 6, 1} 的含义是，id为2的服务器，由近及远的无人机id为3,5,6,1
 	map<int, vector<int>> ISorder;
+	map<int, vector<int>> SIorder;
 	vector<int> OO;				// 大O集合
 	map<int, Cluster> CC;
 	for (int i = 0; i < m; i++)
@@ -912,10 +1020,11 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 		cout << i << " ";
 	cout << '\n';
 	ISorder = get_ISorder(SS, II);
+	SIorder = get_SIorder(SS, II);
 
-	cout << "ISorder:\n";
-	map<int, vector<int>>::iterator it = ISorder.begin();
-	while (it != ISorder.end())
+	cout << "SIorder:\n";
+	map<int, vector<int>>::iterator it = SIorder.begin();
+	while (it != SIorder.end())
 	{
 		cout << "\ta" << it->first << ": ";
 		for (auto i : it->second)
@@ -928,72 +1037,93 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 	cout << "COS:\n";
 	while (II.size() != 0)
 	{
+		int ii_len = II.size();
+		int* is_clus = new int[ii_len];
+		for (int tt = 0; tt < II.size(); tt++)
+			is_clus[tt] = -1;
 		
-		//cout << "\t\tII: ";
-		//for (auto t : II)
-		//{
-		//	cout << t << ' ';
-		//	Server at = A[t];
-		//	double sumBRt = get_sumBR(t, x2);
-		//	for (auto i : ISorder[t])
-		//	{
-		//		Server ai = A[i];
-		//		double RBi = get_RB(i, x2);
-
-		//		if (RBi >= sumBRt)
-		//		{
-		//			// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
-		//			for (int j = 0; j < n; j++)
-		//				x1[t][j] = x2[t][j];
-
-		//			vector<int> src;
-		//			src.push_back(t);
-		//			reroute(allu, src, i, x2);
-		//			CC[i].push_back(t);
-		//			// 在II中删除t
-		//			auto iter = std::remove(II.begin(), II.end(), t);
-		//			II.erase(iter, II.end());
-		//			break;
-		//		}
-		//	}
-		//}
-		//cout << '\n';
-
-		
-		for (auto i : SS)
+		for (int tt = 0; tt < II.size(); tt++)
 		{
-			cout << "\tround" << count++ << ":\n";
-			Server ai = A[i];
-			double RBi = get_RB(i, x2);
-			cout << "\t\tai" << i << ", RBi=" << RBi << ": ";
-			for (auto t : ISorder[i])
-			{
-				vector<int>::iterator iter = find(II.begin(), II.end(), t);
-				if (iter != II.end())
-				{
-					Server at = A[t];
-					double sumBRt = get_sumBR(t, x2);
-					double d = ai.cal_distance(at);
-					if (RBi >= sumBRt and d <= 2 * r)
-					{
-						cout << "at" << t << ", sumBRt=" << sumBRt << '\t';
-						// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
-						for (int j = 0; j < n; j++)
-							x1[t][j] = x2[t][j];
+			if (is_clus[tt] != -1)
+				continue;
+			int t = II[tt];
+			Server at = A[t];
+			double sumBRt = get_sumBR(t, x2);
 
-						vector<int> src;
-						src.push_back(t);
-						reroute(allu, src, i, x2);
-						CC[i].push_back(t);
-						// 在II中删除t
-						auto iter = std::remove(II.begin(), II.end(), t);
-						II.erase(iter, II.end());
-					}
+			cout << "\tround" << count++ << ":\n";
+			cout << "\t\tat" << t << ", sumBRt=" << sumBRt << '\t';
+			for (auto i : SIorder[t])
+			{
+				Server ai = A[i];
+				double RBi = get_RB(i, x2);
+				double d = ai.cal_distance(at);
+				if (RBi >= sumBRt and d <= 2 * r)
+				{
+					cout << "ai" << i << ", sumBRt=" << sumBRt << '\t';
+					// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
+					for (int j = 0; j < n; j++)
+						x1[t][j] = x2[t][j];
+
+					vector<int> src;
+					src.push_back(t);
+					reroute(allu, src, i, x2);
+					CC[i].push_back(t);
+
+					is_clus[tt] = t;
+					// 在II中删除t
+					//auto iter = std::remove(II.begin(), II.end(), t);
+					//II.erase(iter, II.end());
+					break;
 				}
-				RBi = get_RB(i, x2);
 			}
 			cout << '\n';
 		}
+		cout << "is_clus: ";
+		
+		for (int tt = 0; tt < ii_len; tt++)
+		{
+			if (is_clus[tt] != -1)
+			{
+				int t = is_clus[tt];
+				auto iter = std::remove(II.begin(), II.end(), t);
+				II.erase(iter, II.end());
+			}
+		}
+
+
+		//for (auto i : SS)
+		//{
+		//	cout << "\tround" << count++ << ":\n";
+		//	Server ai = A[i];
+		//	double RBi = get_RB(i, x2);
+		//	cout << "\t\tai" << i << ", RBi=" << RBi << ": ";
+		//	for (auto t : ISorder[i])
+		//	{
+		//		vector<int>::iterator iter = find(II.begin(), II.end(), t);
+		//		if (iter != II.end())
+		//		{
+		//			Server at = A[t];
+		//			double sumBRt = get_sumBR(t, x2);
+		//			double d = ai.cal_distance(at);
+		//			if (RBi >= sumBRt and d <= 2 * r)
+		//			{
+		//				cout << "at" << t << ", sumBRt=" << sumBRt << '\t';
+		//				// 额外步骤，将当前x2[t][j]的状态保存至x1[t][j]中
+		//				for (int j = 0; j < n; j++)
+		//					x1[t][j] = x2[t][j];
+		//				vector<int> src;
+		//				src.push_back(t);
+		//				reroute(allu, src, i, x2);
+		//				CC[i].push_back(t);
+		//				// 在II中删除t
+		//				auto iter = std::remove(II.begin(), II.end(), t);
+		//				II.erase(iter, II.end());
+		//			}
+		//		}
+		//		RBi = get_RB(i, x2);
+		//	}
+		//	cout << '\n';
+		//}
 		cout << "II: ";
 		for (auto i : II)
 			cout << i << " ";
@@ -1114,13 +1244,19 @@ map<int, Cluster> Cover::COS(double** x1, double* y1, double** x2, double* y2)
 	return CC;
 }
 
+// 根据当前x，y状态，将一些可以被其它inferior服务器取代的服务器合并
 void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 {
+	// 初始化
 	for (int i = 0; i < m; i++)
 	{
 		y1[i] = y[i];
 		for (int j = 0; j < n; j++)
+		{
+			// cout << "i = " << i << ", j = " << j << '\t';
 			x1[i][j] = x[i][j];
+		}
+
 	}
 	vector<int> II;				// inferior server的集合
 	map<int, vector<int>> AA;	// 保存各个被选中服务器服务的用户 
@@ -1129,7 +1265,7 @@ void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 		if (y1[i] > 0)
 		{
 			// 生成II
-			if (y1[i] <= alpha)
+			if (y1[i] < 1 and y1[i] > 0)
 				II.push_back(i);
 
 			// 生成被选中服务器服务的用户集合
@@ -1160,15 +1296,23 @@ void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 	// is_merge为一个长度为II.size()的数组，记录对应下标服务器是否被merge
 	// 0为“未被merge”		1为被merge
 	int* is_merge = new int[II.size()];
+	for (int i = 0; i < II.size(); i++)
+		is_merge[i] = 0;
+
 	for (int ii = 0; ii < II.size(); ii++)
 	{
+		// 若下标为ii的服务器被merge了，就下个循环
 		if (is_merge[ii] == 1)
 			continue;
+		// i为当前ii对应的服务器id
 		int i = II[ii];
 		Server ai = A[i];
+		// Ai为服务器i当前服务的用户
 		vector<int> Ai = AA[i];
 		for (int tt = 0; tt < II.size(); tt++)
 		{
+			// 合并下标为tt的服务器与ii的服务器
+			// 若下标为tt的服务器被merge了，就下个循环
 			if (is_merge[tt] == 1)
 				continue;
 			if (ii == tt)
@@ -1179,9 +1323,11 @@ void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 
 			if (ai.cal_distance(at) > 2 * r)
 				continue;
+			// 在合并的过程中，II中的服务器可能变得superior，因此需要此判断
 			if (y1[i] + y1[t] > 1)
 				continue;
 
+			// 
 			if (is_contain(At, Ai, i))
 			{
 				cout << "\tAt" << t << ": ";
@@ -1196,11 +1342,14 @@ void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 
 				y1[i] += y1[t];
 				y1[t] = 0;
-				for (auto j : Ai)
+
+				for (auto j : At)
 				{
 					x1[i][j] += x1[t][j];
 					x1[t][j] = 0;
 				}
+
+				
 				is_merge[tt] = 1;
 
 			}
@@ -1224,8 +1373,11 @@ void Cover::mergeII(double** x, double* y, double** x1, double* y1)
 	for (auto i : II)
 		cout << i << ' ';
 	cout << '\n';
+
+	print_cplex(x1, y1);
 }
 
+// 算法第三步，在每个cluster中选择最终的服务器
 void Cover::SFS(double** x1, double** x2, double* y2, double** x3, double* y3, map<int, Cluster>& CC)
 {
 	// 参数：
@@ -1308,6 +1460,8 @@ void Cover::SFS(double** x1, double** x2, double* y2, double** x3, double* y3, m
 
 }
 
+// 构造符合alpha<sum_{ai_\in Ij}{y_i}<= 2 * alpha
+// 在construct_I_j函数中，I_j被修改成符合上述约束的集合 
 void Cover::construct_I_j(vector<int>& I_j, double sum_I, double* y)
 {
 	while (sum_I > 2 * alpha)
@@ -1318,6 +1472,7 @@ void Cover::construct_I_j(vector<int>& I_j, double sum_I, double* y)
 	}
 }
 
+// 将obj中的用户的流，从src中reroute到aim服务器中，需要修改x；flow为留的大小，默认为1，若不为1则
 void Cover::reroute(vector<int>& obj, vector<int>& src, int aim, double** x, double flow)
 {
 	// 将obj中的用户的flow这么多的流，从src重引流到aim
@@ -1362,6 +1517,7 @@ void Cover::reroute(vector<int>& obj, vector<int>& src, int aim, double** x, dou
 	}
 }
 
+// 找到i服务的用户集合Ai中，需求最小的BR 
 double Cover::get_BRmin(vector<int>& Ai)
 {
 	double min = A[0].BW;
@@ -1371,6 +1527,7 @@ double Cover::get_BRmin(vector<int>& Ai)
 	return min;
 }
 
+// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
 int Cover::get_max_xBR(int t, vector<int>& At, double RBt, double** x)
 {
 	// 在无人机t当前服务的用户集合At中，找到最适合那个用户。这个用户将被重引流
@@ -1395,10 +1552,11 @@ int Cover::get_max_xBR(int t, vector<int>& At, double RBt, double** x)
 	return max_u;
 }
 
+// 判断At是否是Ai的子集
 bool Cover::is_contain(vector<int>& At, vector<int>& Ai, int i)
 {
 	Server ai = A[i];
-	// 判断At是否是Ai的子集
+	
 	for (auto t : At)
 	{
 		/*if (find(Ai.begin(), Ai.end(), t) == Ai.end())
@@ -1410,6 +1568,7 @@ bool Cover::is_contain(vector<int>& At, vector<int>& Ai, int i)
 	return true;
 }
 
+// inferior server 到各个 superior server距离升序排序，保存序号
 map<int, vector<int>> Cover::get_ISorder(vector<int>& SS, vector<int>& II)
 {
 	// inferior server 到各个 superior server距离升序排序，保存序号
@@ -1495,6 +1654,93 @@ map<int, vector<int>> Cover::get_ISorder(vector<int>& SS, vector<int>& II)
 	return ISorder;
 }
 
+// superior server 到各个 inferior server距离升序排序，保存序号
+map<int, vector<int>> Cover::get_SIorder(vector<int>& SS, vector<int>& II)
+{
+	// inferior server 到各个 superior server距离升序排序，保存序号
+	// ISorder[2] = {3, 5, 6, 1} 的含义是，id为2的服务器，由近及远的无人机id为3,5,6,1
+
+	map<int, vector<int>> SIorder;
+
+	// 初始化
+	for (auto i : II)
+		SIorder[i] = SS;
+
+
+	map<int, vector<int>>::iterator it = SIorder.begin();
+	/*cout << "ISorder:\n";
+	it = ISorder.begin();
+	while (it != ISorder.end())
+	{
+		cout << "a" << it->first << ": ";
+		for (auto i : it->second)
+			cout << i << ' ';
+		cout << '\n';
+		it++;
+	}*/
+
+	// cout << "过程：\n";
+	it = SIorder.begin();
+	while (it != SIorder.end())
+	{
+		int i = it->first;
+		// cout << "a" << i << ": "; 
+		Server ai = A[i];
+		for (int ss = 0; ss < it->second.size(); ss++)
+		{
+			int clo_s = ss;
+			double clo_d = ai.cal_distance(A[it->second[clo_s]]);
+			for (int ss2 = ss + 1; ss2 < it->second.size(); ss2++)
+			{
+				double d = ai.cal_distance(A[it->second[ss2]]);
+				if (d < clo_d)
+				{
+					clo_s = ss2;
+					clo_d = d;
+				}
+			}
+			int temp = it->second[ss];
+			it->second[ss] = it->second[clo_s];
+			it->second[clo_s] = temp;
+		}
+		//for (int ss = 0; ss < it->second.size(); ss++)
+		//{
+		//	int clo_s = ss;
+		//	double clo_d = ai.cal_distance(A[it->second[clo_s]]);
+		//	// cout << '\t' << 'd' << it->second[clo_s] << ": " << clo_d << '\n';
+		//	for (int ss2 = ss + 1; ss2 < it->second.size(); ss2++)
+		//	{
+
+		//		double d = ai.cal_distance(A[it->second[ss2]] );
+		//		if (d < clo_d)
+		//		{
+		//			clo_s = ss2;
+		//			clo_d = d;
+		//		}
+		//	}
+
+		//	int temp = it->second[ss];
+		//	it->second[ss] = it->second[clo_s];
+		//	it->second[clo_s] = temp;
+		//}
+		//
+		it++;
+	}
+
+	/*cout << "ISorder:\n";
+	it = ISorder.begin();
+	while (it != ISorder.end())
+	{
+		cout << "a" << it->first << ": ";
+		for (auto i : it->second)
+			cout << i << ' ';
+		cout << '\n';
+		it++;
+	}*/
+	return SIorder;
+}
+
+// 本函数将包含集合I的区域，该区域以点cp为中心，边长为L，划分为边长为cl的小方格
 map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, double cl)
 {
 	// 本函数将包含集合I的区域，该区域以点cp为中心，边长为L，划分为边长为cl的小方格
@@ -1537,6 +1783,7 @@ map<int, vector<int>> Cover::construct_GG(vector<int>& I, Point& cp, double L, d
 	return GG;
 }
 
+// 将一些质包含一个服务器的G，合并到符合条件的G中
 void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 {
 	map<int, vector<int>> GG_ = GG;			// GG副本，在后面GG中某个G合并新g之后，之后要跟他合并的g只能与G.back()比较距离
@@ -1545,14 +1792,20 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 	map<int, vector<int>>::iterator itEnd = GG.end();
 
 	vector<int> erased_key;	// 记录在GG中，被合并的长度为1的g的key值。在之后根据key值，在map中删除
+	// 记录每个是否被合并，被合并的话值为被合并的key值
+	int* is_mer = new int[GG.size()];
+	for (int i = 0; i < GG.size(); i++)
+		is_mer[i] = 0;
 
-
+	int j = 0;
 	while (it1 != itEnd)
 	{
+		cout << j << '\n';
+		if (is_mer[j] == 1)
+			break;
 		// 外循环，找到长度为1的g
 		vector<int> g = it1->second;
 		// 记录当前g是否被合并，未被合并为0
-		int is_merge = 0;
 		if (g.size() == 1)
 		{
 			// 只有当前的g的长度为1才能被合并，进行以下步骤
@@ -1561,17 +1814,24 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 			// g中的唯一的server
 			Server a1 = A[g[0]];
 
-			// 从map开头为g寻找能够加入的G
+			// 从map开头为g寻找能够加入的G，it2指向it1将要并入的group
 			map<int, vector<int>>::iterator it2 = GG.begin();
+			int jj = 0;
 			while (it2 != itEnd) {
-				if (it2 == it1)
+				// 每次it2都要判断g是否被merge，上个迭代被merge后，这个迭代就会退出迭代
+				if (is_mer[j] == 1)
+					break;
+				// 判断it2指向的group是否被merge，若被merge则扫描下一个
+				if (is_mer[jj] == 1)
 				{
-					// 若it2==it1，表明it2指向了当前g，则什么都不做
+
 				}
-				else
-				{
-					// 每次it2都要判断g是否被merge，上个迭代被merge后，这个迭代就会退出迭代
-					if (is_merge == 0)
+				else {
+					if (it2 == it1)
+					{
+						// 若it2==it1，表明it2指向了当前g，则什么都不做
+					}
+					else
 					{
 						// 记录G对应的KEY值
 						int KEY = it2->first;
@@ -1596,7 +1856,7 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 									it2->second.push_back(i);
 									// 在erased_key中加入当前被merge的g的键值
 									erased_key.push_back(key);
-									is_merge = 1;
+									is_mer[j] = 1;
 									break;
 								}
 							}
@@ -1604,6 +1864,10 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 						else
 						{
 							// 如果G中已经merge过服务器，那么就只能与G中的最后一个服务器比较距离
+							cout << "before " << it2->first << ':';
+							for (auto i : it2->second)
+								cout << i << ' ';
+							cout << '\n';
 							int i = G.back();
 							int ii = G.size() - 1;
 							if (a1.cal_distance(A[i]) <= cl)
@@ -1611,20 +1875,23 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 								it2->second[ii] = g[0];
 								it2->second.push_back(i);
 								erased_key.push_back(key);
-								is_merge = 1;
+								is_mer[j] = 1;
 							}
+							cout << "after " << it2->first << ':';
+							for (auto i : it2->second)
+								cout << i << ' ';
+							cout << '\n';
 						}
-
-					}
-					else
-					{
-						break;
 					}
 				}
+
+				jj++;
 				it2++;
 			}
 
 		}
+
+		j++;
 		it1++;
 	}
 
@@ -1634,26 +1901,30 @@ void Cover::merge_GG(map<int, vector<int>>& GG, double cl)
 	}
 }
 
+// 根据xx与yy的值，对对象初始化
 template<class TT, class T>
 void Result::init_(TT xx, T yy)
 {
 	for (int i = 0; i < m; i++)
 	{
-		y[i] = 0;
+		y[i] = yy[i];
 		if (yy[i] > 0)
 		{
-			y[i] = 1;
 			
 			for (int j = 0; j < n; j++)
 			{
 				x[i][j] = 0;
-				if (xx[i][j] > 0)
-					x[i][j] = 1;
+				x[i][j] = xx[i][j];
 			}
 		}
 	}
 }
 
+
+// 将x，y解析成以下结果写入文件
+// 第1行: chosen_m n |chosen_m: 被选择服务器数 n: 用户数
+// 第2k+1行: aid ucont |k=0,1,...,chosen_m-1; aid: 服务器id; ucont: 
+// 第2k+2行: u0 u1 ... u_ucont-1 |u0... : 被2k+1行中对应服务器服务的用户	
 void Result::write_result_file(string fname)
 {
 	// 将x，y解析成以下结果写入文件
@@ -1681,6 +1952,39 @@ void Result::write_result_file(string fname)
 			con_u += '\n';
 			wcontent.push_back(to_string(i) + ' ' + to_string(u_cont) + '\n');
 			wcontent.push_back(con_u);
+		}
+	}
+	wcontent[0] = to_string(chosen_m) + ' ' + to_string(n) + '\n';
+	ofstream output;
+	output.open(fname, ios::app);
+	for (auto w : wcontent)
+		output << w;
+	output.close();
+}
+
+void Result::write_cplex_file(string fname)
+{
+	// 将x，y的值写入文件
+	// 第一行：choosen_m n
+	// 第二行：yid y[i]
+	// 第三行：x[0] x[1] ... x[n]
+	vector<string> wcontent;
+	wcontent.push_back("\n");	// 占位，第一行为"chosen_m n"，即被选择的服务器数和用户数
+	chosen_m = 0;
+	for (int i = 0; i < m; i++)
+	{
+		if (y[i] > 0)
+		{
+			wcontent.push_back(to_string(i) + ' ' + to_string(y[i]) + '\n');
+			chosen_m++;
+			string x_values;	// 对应所有x[i]的值
+			int u_cont = 0;		// 被i服务的用户数
+			for (int j = 0; j < n; j++)
+			{
+				x_values += to_string(x[i][j]) + ' ';
+			}
+			x_values += '\n';
+			wcontent.push_back(x_values);
 		}
 	}
 	wcontent[0] = to_string(chosen_m) + ' ' + to_string(n) + '\n';

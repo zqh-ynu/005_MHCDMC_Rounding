@@ -3,6 +3,7 @@
 #include <ilcplex/ilocplex.h>
 #include <stdio.h>
 #include <iostream>
+#include <direct.h>
 #include "predefine.h"
 using namespace std;
 typedef IloArray <IloNumVarArray> IloNumVarArray2;
@@ -10,9 +11,11 @@ typedef IloArray <IloNumVarArray> IloNumVarArray2;
 
 void one_example();
 
-
+// 实验文件夹路径
+string exp_path = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\";
 int main()
 {
+
     one_example();
     /*Cover cover;
     cover.cal_min_r();*/
@@ -21,14 +24,37 @@ int main()
 
 void one_example()
 {
-    string fname = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Generate_Points\\data\\example\\oneInstance50.txt";
+    string fname = exp_path + "Generate_Points\\data\\example\\UAV_AVEn200l200.txt";
     Cover cover;
     cover.initial(fname);
     // cover.print_all();
     // cout << "epsilon=" << cover.ep;
+    cover.GBTSR(0);
+    cover.cal_SINR();
+    //cover.print_array(cover.SINR, "SINR");
+    //cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200.txt");
+
+    //cover.GBTSR();
+    //cover.cal_SINR();
+    //cover.print_array(cover.SINR, "SINR");
+    //cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\r2BR1.txt");
+
+   /* cover.GBTSR();
+    cover.cal_SINR();
+    cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\r3.txt");
+
     cover.GBTSR();
+    cover.cal_SINR();
+    cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\r4.txt");
+
+    cover.GBTSR();
+    cover.cal_SINR();
+    cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\r5.txt");*/
+
+
+    //cover.print_all();
     //cover.IP();
-    //cover.result.write_result_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\oneresultDSIS.txt");
+    //cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVE200_IP.txt");
 }
 
 

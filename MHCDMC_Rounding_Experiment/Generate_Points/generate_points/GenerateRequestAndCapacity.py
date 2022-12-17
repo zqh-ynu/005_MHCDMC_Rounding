@@ -3,7 +3,7 @@ import random
 from generate_points.GenerateLocation import generateUserLocationRandomly
 
 
-def generateUserRequest(U_loc, low_request=0, high_request=20):
+def generateUserRequest(U_loc, low_request=1, high_request=5):
     # 参数：
     # U_loc     list        [[x1, y1], ..., [xn, yn]]
     # low_request=0

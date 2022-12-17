@@ -1,3 +1,5 @@
+import os
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Circle
 import numpy as np
@@ -68,8 +70,8 @@ def draw_all_elements(U, A, r, fname, isr=0):
             color="red"
             ax.scatter(x, y, s=40, color=color, marker="^", linewidths=1)
             plt.text(x, y, str(i), fontsize=8)
-            c = Circle((x, y), radius=r, fill=False, linestyle='-.')
-            ax.add_patch(c)
+            # c = Circle((x, y), radius=r, fill=False, linestyle='-.')
+            # ax.add_patch(c)
         # else:
         #     ax.scatter(x, y, s=40, color=color, marker="1", linewidths=1, alpha=0.5)
         i += 1
@@ -81,7 +83,12 @@ def draw_all_elements(U, A, r, fname, isr=0):
         # plt.text(x, y, str(j), fontsize=6)
         j += 1
     if isr == 1:
+        if not os.path.exists(os.path.dirname(fname)):
+            # if the demo_folder directory is not present
+            # then create it.
+            os.makedirs(os.path.dirname(fname))
         plt.tight_layout()  # 去除pdf周围白边
+
         plt.savefig(fname)
     plt.show()
     pass
