@@ -1,6 +1,7 @@
 import os.path
 
 from generate_points.GenerateLocation import generateUserLocationRandomly
+from generate_points.GenerateLocation import generateUserLocationCluster
 from generate_points.GenerateLocation import generateServerLocationByNeibor
 from generate_points.GenerateLocation import generateServerLocationAverage
 from generate_points.GenerateRequestAndCapacity import generateUserRequest
@@ -11,12 +12,12 @@ from PrintToFile.PrintDataToFile import print_data_to_file
 from oneResult import readResult
 
 
-def one_instance(n, Lenth, r, fname, Utype=1, Atype=1, l=200):
+def one_instance(n, Length, r, fname, Utype=1, Atype=1, l=200):
     """
     根据参数，生成问题实例
 
     :param n: 用户数
-    :param Lenth: 用户分布区域长度
+    :param Length: 用户分布区域长度
     :param r: 无人机默认覆盖半径
     :param fname: 该实例的文件绝对路径
     :param Utype: 生成用户分布的类型, 1为随机分布，2为聚集分布。默认为1
@@ -26,14 +27,18 @@ def one_instance(n, Lenth, r, fname, Utype=1, Atype=1, l=200):
     """
 
     if Utype == 1:
-        U_loc = generateUserLocationRandomly(n, Lenth)
+        U_loc = generateUserLocationRandomly(n, Length)
     elif Utype == 2:
-        U_loc = generateUserLocationRandomly(n, Lenth)
+        n1 = 60
+        n2 = 70
+        n3 = 80
+        n  = n1 + n2 + n3
+        U_loc = generateUserLocationCluster(n1, n2, n3)
     else:
-        U_loc = generateUserLocationRandomly(n, Lenth)
+        U_loc = generateUserLocationRandomly(n, Length)
 
     if Atype == 1:
-        A_loc = generateServerLocationAverage(Lenth, l)
+        A_loc = generateServerLocationAverage(Length, l)
     elif Atype == 2:
         A_loc = generateServerLocationByNeibor(U_loc, r)
     else:
@@ -41,7 +46,7 @@ def one_instance(n, Lenth, r, fname, Utype=1, Atype=1, l=200):
 
     U = generateUserRequest(U_loc)
     A = generateServerCapacity(A_loc, 50)
-
+    draw_all_points(U, A, 500)
     print_data_to_file(U, A, fname)
 
 
@@ -83,13 +88,46 @@ def test():
     # 获取项目路径
     ffname = os.path.abspath(__file__)  # 当前文件绝对路径
     fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
-    fname = fpath + "\\data\\example\\UAV_AVEn200l200.txt"
+    fname = fpath + "\\data\\example\\UAV_CLSn200l200.txt"
     print(fname)
-    # one_instance(200, 2000, 400, fname)
+    # one_instance(200, 2000, 400, fname, Utype=2)
 
-    rfile = "test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_IP.txt"
+    rfile = "test\\MultiItTest\\n200BW50\\UAV_CLSn200l200.txt"
     fname_in = fname
     fname_out = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\" + rfile
     print(fname_in)
     print(fname_out)
     oneResult(fname_in, fname_out, fpath, rfile, 200)
+# test()
+
+
+def case1():
+    """
+    生成用户随机分布，不同服务器候选位置实例。将实例文件写入txt文件
+    :return:
+    """
+    ffname = os.path.abspath(__file__)  # 当前文件绝对路径
+    fpath = os.path.dirname(ffname)  # 当前文件的父文件夹绝对路径
+    casePath = fpath + "\\data\\case1"
+
+    cNum = 50       # 实例数
+    n = 200
+    Length = 2000
+    l = 200
+    r = 500
+    BW = 50
+
+    for i in range(cNum):
+        print("interation:" + str(i))
+        fave = casePath + "\\aveIns" + str(i) + ".txt"
+        fnei = casePath + "\\neiIns" + str(i) + ".txt"
+        U = generateUserRequest(generateUserLocationRandomly(n, Length))
+        Aave = generateServerCapacity(generateServerLocationAverage(Length, l), BW)
+        Anei_loc = generateServerLocationByNeibor(U, r)
+        Anei = generateServerCapacity(Anei_loc, BW)
+        print_data_to_file(U, Aave, fave)
+        print_data_to_file(U, Anei, fnei)
+
+case1()
+
+

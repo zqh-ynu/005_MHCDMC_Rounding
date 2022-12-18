@@ -8,14 +8,20 @@ N0 = -174 + 10 * math.log10(5e5)
 p = 40
 
 print(N0)
-def draw_contour(A_loc, U_loc, r, length, fname):
-    # U_loc     list        [[x1, y1, BR1, aid], ..., [xn, yn, BRn, aid]
-    # A_loc     list        [[x1, y1, BW1, isSelect], ..., [xm, ym, BWm, isSelect]
-    # r     double      半径
-    # width             长
-    # length            宽
+def draw_contour(A_loc, U_loc, r, Length, fname):
+    """
+    将所有用户与被选择的服务器输出成图片，并画出全局的信噪比等高线图
+
+    :param A_loc: [[x1, y1, BW1, isSelect], ..., [xm, ym, BWm, isSelect]
+    :param U_loc: [[x1, y1, BR1, aid], ..., [xn, yn, BRn, aid]
+    :param r: 服务器默认覆盖半径
+    :param Length: 用户服务器分布区域边长
+    :param fname: 图片文件保存绝对路径
+    :return:
+    """
+
     h = 100
-    muban = np.linspace(-r, length + r, int((length + 2 * r) / 20))
+    muban = np.linspace(-r, Length + r, int((Length + 2 * r) / 20))
     shapes = len(muban)
     # X, Y 是将分布区域的点栅格化，对应每个点的x，y坐标
     X, Y = np.meshgrid(muban, muban)
@@ -79,8 +85,8 @@ def draw_contour(A_loc, U_loc, r, length, fname):
     fig, ax = plt.subplots()
     ax.set_aspect(1)  # 设置坐标轴同比例
     # 设置坐标轴范围
-    plt.xlim(-r, length + r)
-    plt.ylim(-r, length + r)
+    plt.xlim(-r, Length + r)
+    plt.ylim(-r, Length + r)
 
     ctf = ax.contourf(X, Y, SINR, levels=levels, alpha=0.75)
     ct = ax.contour(X, Y, SINR, levels=levels, linewidths=0.4)

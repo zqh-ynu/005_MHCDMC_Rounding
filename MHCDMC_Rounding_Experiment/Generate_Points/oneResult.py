@@ -4,9 +4,23 @@ from draw_points.DrawPoints import draw_all_points
 
 
 def readResult(infname, outfname):
-    # infname       源数据文件绝对路径
-    # outfname      结果数据文件绝对路径
-    U=[]        # [[x, y, BR], ..., ]
+    """
+    从infname文件读取用户与服务器的原始数据，从outfname文件读取服务器选中数据及服务器覆盖用户的数据。
+    infname文件格式：
+        第1行：        m n
+        第2~m+1行：    x y BW
+        第m+2~m+n+1行：x y BR
+    outfname文件格式：
+        第1行：        cm n
+        第2k+2行：     aid unum
+        第2k+3行：     uid1, ..., uid_unum
+
+
+    :param infname: 用户与服务器的原始数据文件
+    :param outfname: 算法执行结果
+    :return: A = [[x, y, BW, isSelected], ..., ], U = [[x, y, BR, servedBy], ..., ]
+    """
+    U=[]        # [[x, y, BR, servedBy], ..., ]
     A=[]        # [[x, y, BW, isSelected], ..., ]
 
     # 读取infname
@@ -28,7 +42,7 @@ def readResult(infname, outfname):
         A.append(a)
     for j in range(n):
         # line示例
-        # 'x y BW'  x坐标，y坐标，容量BW
+        # 'x y BR'  x坐标，y坐标，容量BW
         line = lines_in[j + m + 1][0:-1].split()
         u = []
         for item in line:
@@ -37,7 +51,7 @@ def readResult(infname, outfname):
         u.append(-1)
         U.append(u)
 
-    # 读取infname
+    # 读取outfname
     with open(outfname, encoding='utf-8') as file_out:
         lines_out = file_out.readlines()
     file_out.close()

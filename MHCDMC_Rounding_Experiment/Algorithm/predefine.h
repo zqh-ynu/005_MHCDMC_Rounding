@@ -32,6 +32,9 @@ const double h = 100;		// 无人机飞行高度
 const int E = 1e5;
 // const double BW = 20 * 10e6;	// 无人机的带宽容量
 
+// 实验文件夹路径
+const static std::string exp_path = "E:\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\";
+
 union xu {
 	double** dh;
 	int** i;

@@ -729,10 +729,10 @@ void Cover::GBTSR(int isLP)
 	{
 		LP(x, y);
 		result.init_(x, y);
-		result.write_cplex_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_r1LP.txt");
+		result.write_cplex_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_CLSn200l200_r1LP.txt");
 	}
 	else
-		read_cplex_file("D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200_r1LP.txt", x, y);
+		read_cplex_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_CLSn200l200_r1LP.txt", x, y);
 	//print_RB(x, y);
 	//print_cplex(x, y);
 	

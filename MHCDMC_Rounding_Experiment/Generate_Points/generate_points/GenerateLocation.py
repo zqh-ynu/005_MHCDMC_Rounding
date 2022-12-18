@@ -13,12 +13,49 @@ def generateUserLocationRandomly(n, Length):
     return np.random.randint(0, Length, (n, 2))
 
 
-def generageUserLocationJ():
+def generateUserLocationCluster(n1, n2, n3):
     """
+    按照聚集模式生成用户坐标。
 
-    :return:
+    :param n: 用户总数
+    :param Length: 用户分布区域边长
+    :param n1: 聚集地1用户数
+    :param n2: 聚集地2用户数
+    :param n3: 聚集地3用户数
+    :param l: 聚集地边长
+    :return: U_loc = [[x1, y1], ..., [xn, yn]]
     """
-    pass
+    Xmin1 = 0
+    Xmax1 = 800
+    Ymin1 = 0
+    Ymax1 = 800
+
+    Xmin2 = 1200
+    Xmax2 = 2000
+    Ymin2 = 0
+    Ymax2 = 800
+
+    Xmin3 = 600
+    Xmax3 = 1400
+    Ymin3 = 1200
+    Ymax3 = 2000
+
+    X1 = np.random.randint(Xmin1, Xmax1, (n1, 1))
+    Y1 = np.random.randint(Ymin1, Ymax1, (n1, 1))
+    U_loc1 = np.append(X1, Y1, axis=1)
+
+    X2 = np.random.randint(Xmin2, Xmax2, (n2, 1))
+    Y2 = np.random.randint(Ymin2, Ymax2, (n2, 1))
+    U_loc2 = np.append(X2, Y2, axis=1)
+
+    X3 = np.random.randint(Xmin3, Xmax3, (n3, 1))
+    Y3 = np.random.randint(Ymin3, Ymax3, (n3, 1))
+    U_loc3 = np.append(X3, Y3, axis=1)
+
+    U_loc = np.append(U_loc1, U_loc2, axis=0)
+    U_loc = np.append(U_loc, U_loc3, axis=0)
+
+    return U_loc
 
 
 def generateServerLocationByNeibor(U_loc, r):
@@ -33,7 +70,10 @@ def generateServerLocationByNeibor(U_loc, r):
     for i in range(len(U_loc)):
         # 用户1的坐标
         u1 = U_loc[i]
-        A_loc.append(u1)
+        a = []
+        a.append(u1[0])
+        a.append(u1[1])
+        A_loc.append(a)
         # print("i", i, ":", u1)
         for j in range(i + 1, len(U_loc)):
             # 用户2的坐标
@@ -83,19 +123,18 @@ def generateServerLocationAverage(Length, l):
     m = int((Length - 2 * l) / l)
     A_loc = []
 
-    for i in range(m):
+    for i in range(m + 1):
         y = (i + 1) * l
-        for j in range(m):
+        for j in range(m + 1):
             x = (j + 1) * l
             A_loc.append([x, y])
-        x = (m + 1) * l
-        A_loc.append([x, y])
-    x = (m + 1) * l
-    y = (m + 1) * l
-    A_loc.append([x, y])
+        #x = (m + 1) * l
+        #A_loc.append([x, y])
     return A_loc
 
-# U_loc = generateUserLocationRandomly(10, 20)
+# U_loc = generateUserLocationCluster(60, 70, 80)
+# print(U_loc)
+# print(len(U_loc))
 #
 # A_loc = generateServerLocationAverage(2000, 150)
 #

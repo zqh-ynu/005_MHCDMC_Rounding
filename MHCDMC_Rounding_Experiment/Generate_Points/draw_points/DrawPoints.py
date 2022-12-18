@@ -5,13 +5,18 @@ from matplotlib.patches import Ellipse, Circle
 import numpy as np
 
 
-def draw_all_points(U_loc, A_loc, r, fname, isr=0):
-    # 参数：
-    # U_loc     list    [[x1, y1], ..., [xn, yn]]
-    # A_loc     list    [[x1, y1], ..., [xm, ym]]
-    # r         float
-    # fname     str     图片存储位置
-    # isr       int     是否写文件，默认为0，即否
+def draw_all_points(U_loc, A_loc, r, isc = 0, fname="", isr=0):
+    """
+    将所有用户与服务器画到画布上
+
+    :param U_loc: [[x1, y1], ..., [xn, yn]]
+    :param A_loc: [[x1, y1], ..., [xm, ym]]
+    :param r: 半径
+    :param isc: 是否以用户为圆心画圆
+    :param fname: 图片存储位置
+    :param isr: 是否将图片输出到文件
+    :return:
+    """
     fig = plt.figure(figsize=(4, 4), dpi=300)
     ax = fig.add_subplot(111)
     ax.set_aspect(1)    # 设置坐标轴同比例
@@ -35,9 +40,10 @@ def draw_all_points(U_loc, A_loc, r, fname, isr=0):
         x = u[0]
         y = u[1]
         ax.scatter(u[0], u[1], s=10, marker='*', color="blue")
-        c = Circle((u[0], u[1]), radius=r, fill=False, linestyle=':')
-        ax.add_patch(c)
-        plt.text(x, y, str(j), fontsize=6)
+        if isc==1:
+            c = Circle((u[0], u[1]), radius=r, fill=False, linestyle=':')
+            ax.add_patch(c)
+        # plt.text(x, y, str(j), fontsize=6)
         j += 1
     if isr == 1:
         plt.tight_layout()  # 去除pdf周围白边

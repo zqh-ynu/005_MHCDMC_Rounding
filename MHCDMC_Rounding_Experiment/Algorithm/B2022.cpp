@@ -7,12 +7,10 @@
 #include "predefine.h"
 using namespace std;
 typedef IloArray <IloNumVarArray> IloNumVarArray2;
-#include <iostream>
 
 void one_example();
 
-// 实验文件夹路径
-string exp_path = "D:\\Myschool\\graduate_school\\02Graduate\\Research\\My paper\\2_Papers\\005_MHCDMC_Rounding\\MHCDMC_Rounding_Experiment\\";
+
 int main()
 {
 
@@ -24,7 +22,7 @@ int main()
 
 void one_example()
 {
-    string fname = exp_path + "Generate_Points\\data\\example\\UAV_AVEn200l200.txt";
+    string fname = exp_path + "Generate_Points\\data\\example\\UAV_CLSn200l200.txt";
     Cover cover;
     cover.initial(fname);
     // cover.print_all();
@@ -32,7 +30,7 @@ void one_example()
     cover.GBTSR(0);
     cover.cal_SINR();
     //cover.print_array(cover.SINR, "SINR");
-    //cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_AVEn200l200.txt");
+    // cover.result.write_result_file(exp_path + "Algorithm\\result\\test\\MultiItTest\\n200BW50\\UAV_CLSn200l200.txt");
 
     //cover.GBTSR();
     //cover.cal_SINR();
